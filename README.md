@@ -53,3 +53,36 @@ pip install -r requirements.txt
 # Run migrations and start the server
 python manage.py migrate
 python manage.py runserver
+Visit your site at: [http://localhost:8000/](http://localhost:8000/)
+
+---
+
+## 🗄️ Database
+
+To restore the sample database:
+
+- Use phpMyAdmin to import `backup.sql`,  
+  or  
+- Run the following in MySQL CLI:
+
+```bash
+mysql -u root -p bhavi_db < backup.sql
+---
+## 📄 License
+
+This project is for educational and portfolio purposes only.
+
+📌 After that, you can add the following instructions to help others use the README:
+
+```markdown
+---
+
+## 📌 How to Add This README
+
+1. Go to your GitHub repository.
+2. Click on "Add file" → "Create new file".
+3. Name the file: `README.md`
+4. Paste all the code you just copied.
+5. Scroll down and click "Commit new file".
+
+Your README will now appear on the homepage of your GitHub repository.
