@@ -1,73 +1,55 @@
-Bhavi India Fashion 🛍️
+# Bhavi India Fashion 🛍️
 
 Bhavi India Fashion is a full-stack web application developed using Django and MySQL that provides a platform for customers to explore, order, and manage ethnic and contemporary fashion products. It includes a robust admin panel for managing inventory, orders, users, and reporting.
-🌐 Tech Stack
 
-    Backend: Python, Django
+---
 
-    Frontend: HTML, CSS, JavaScript
+## 🌐 Tech Stack
 
-    Database: MySQL
+- 🐍 Backend: Python, Django  
+- 🌐 Frontend: HTML, CSS, JavaScript  
+- 🛢️ Database: MySQL
 
-🔑 Key Features
+---
 
-    User authentication and registration
+## 🔑 Key Features
 
-    Admin dashboard for managing products and orders
+- ✅ User authentication and registration  
+- 🛒 Admin dashboard for managing products and orders  
+- 🗂️ Category-wise product listings  
+- 📦 Bulk order and custom design request modules  
+- 📬 Contact form and log management  
+- 💾 SQL backup and restore support
 
-    Category-wise product listings
+---
 
-    Bulk order and custom design request modules
+## 📁 Project Structure
 
-    Contact form and log management
+- `accounts/` – User login, registration, profile  
+- `admin_dashboard/` – Admin control panel  
+- `bulk_orders/`, `custom_designs/` – Specialized modules  
+- `logs/`, `orders/`, `products/` – Business logic & data models  
+- `report_manager/` – Export and report generation  
+- `static/`, `templates/` – Frontend files  
+- `db.sqlite3`, `backup.sql` – Database and backup
 
-    SQL backup and restore support
+---
 
-📁 Project Structure
+## 🚀 Getting Started
 
-    accounts/ – User login, registration, profile
+```bash
+# Clone the repository
+git clone https://github.com/shrushtiprograms/bhavi_fashion.git
 
-    admin_dashboard/ – Admin control panel
+# Create a virtual environment
+python -m venv venv
 
-    bulk_orders/, custom_designs/ – Specialized modules
+# Activate the environment (Windows)
+venv\Scripts\activate
 
-    logs/, orders/, products/ – Business logic & data models
+# Install dependencies
+pip install -r requirements.txt
 
-    report_manager/ – Export and report generation
-
-    static/, templates/ – Frontend files
-
-    db.sqlite3, backup.sql – Database and backup
-
-🚀 Getting Started
-
-    Clone the repository:
-
-    git clone https://github.com/shrushtiprograms/bhavi_fashion.git
-
-    Create a virtual environment and activate it:
-
-    python -m venv venv
-    venv\Scripts\activate (on Windows)
-
-    Install dependencies:
-
-    pip install -r requirements.txt
-
-    Run migrations and start the server:
-
-    python manage.py migrate
-    python manage.py runserver
-
-    Access the app at http://localhost:8000/
-
-📦 Database
-
-To restore the sample database:
-
-    Use backup.sql in phpMyAdmin or run via MySQL CLI:
-    mysql -u root -p bhavi_db < backup.sql
-
-📜 License
-
-This project is for educational and portfolio purposes.
+# Run migrations and start the server
+python manage.py migrate
+python manage.py runserver
