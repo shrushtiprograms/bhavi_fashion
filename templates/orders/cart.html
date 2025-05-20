@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart | Bhavi Fashion{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-item-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+    }
+    .cart-summary {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .item-price {
+        font-weight: 600;
+        color: #d81b60;
+    }
+    .total-amount {
+        font-size: 24px;
+        font-weight: 700;
+        color: #d81b60;
+    }
+    .quantity-selector {
+        max-width: 120px;
+    }
+    .empty-cart {
+        min-height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 mb-0">Shopping Cart</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Cart</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    {% if cart_items %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Your Items ({{ cart_items|length }})</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Product</th>
+                                    <th scope="col" class="text-center">Quantity</th>
+                                    <th scope="col" class="text-end">Price</th>
+                                    <th scope="col" class="text-end">Subtotal</th>
+                                    <th scope="col" class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr>
+                                    
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <a href="{% url 'products:detail' item.product.id %}?from=cart" class="text-decoration-none">
+                                            {% if item.product.primary_image %}
+                                            <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="cart-item-image me-3">
+                                            {% elif item.product.images.first %}
+                                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="cart-item-image me-3">
+                                            {% else %}
+                                            <img src="{% static 'images/product-placeholder.jpg' %}" alt="{{ item.product.name }}" class="cart-item-image me-3">
+                                            {% endif %}
+                                            </a>
+                                                <h6 class="mb-1">
+                                                  <a href="{% url 'products:detail' item.product.id %}?from=cart" class="text-decoration-none">
+                                                    {{ item.product.name }}</a>
+                                                </h6>
+                                            
+                                                <small class="text-muted">
+                                                    {% if item.variant %}
+                                                    Size: {{ item.variant.size }}, Color: {{ item.variant.color }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <div class="quantity-selector mx-auto">
+                                            <form action="{% url 'orders:update_cart_quantity' item.id %}" method="post" class="d-flex">
+                                                {% csrf_token %}
+                                                <button type="button" class="btn btn-sm btn-outline-secondary qty-dec">-</button>
+                                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="form-control form-control-sm text-center mx-1 qty-input" data-product-name="{{ item.product.name|escapejs }}">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary qty-inc">+</button>
+                                                <button type="submit" class="btn btn-sm btn-primary d-none qty-update-btn">Update</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-end item-price">₹{{ item.product.current_price }}</td>
+                                    <td class="align-middle text-end item-price">₹{{ item.subtotal }}</td>
+                                    <td class="align-middle text-center">
+                                        <form action="{% url 'orders:remove_from_cart' item.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'products:catalog' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                        </a>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Cart Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="cart-summary">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>₹{{ totals.subtotal|floatformat:2 }}</span>
+                        </div>
+                        {% if totals.discount > 0 %}
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Discount:</span>
+                            <span>-₹{{ totals.discount|floatformat:2 }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span>{% if totals.shipping > 0 %}₹{{ totals.shipping|floatformat:2 }}{% else %}Free{% endif %}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (GST):</span>
+                            <span>₹{{ totals.tax|floatformat:2 }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between total-amount">
+                            <span>Total:</span>
+                            <span>₹{{ totals.total|floatformat:2 }}</span>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-shopping-bag me-2"></i>Proceed to Checkout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">We Accept</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap justify-content-between">
+                        <img src="{% static 'images/payment/visa.jpg' %}" alt="Visa" height="30" class="me-2 mb-2">
+                        <img src="{% static 'images/payment/mastercard.jpg' %}" alt="Mastercard" height="30" class="me-2 mb-2">
+                        <img src="{% static 'images/payment/rupay.jpg' %}" alt="RuPay" height="30" class="me-2 mb-2">
+                        <img src="{% static 'images/payment/upi.jpg' %}" alt="UPI" height="30" class="mb-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card shadow-sm">
+        <div class="card-body text-center empty-cart d-flex flex-column align-items-center justify-content-center">
+            <div class="mb-4">
+                <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                <h3>Your cart is empty</h3>
+                <p class="text-muted">Looks like you haven't added any products to your cart yet.</p>
+            </div>
+            <a href="{% url 'products:catalog' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Quantity increment/decrement
+        const qtyDecBtns = document.querySelectorAll('.qty-dec');
+        const qtyIncBtns = document.querySelectorAll('.qty-inc');
+        const qtyInputs = document.querySelectorAll('.qty-input');
+        const qtyUpdateBtns = document.querySelectorAll('.qty-update-btn');
+
+        qtyDecBtns.forEach((btn, index) => {
+            btn.addEventListener('click', function() {
+                const input = qtyInputs[index];
+                const currentVal = parseInt(input.value);
+                if (currentVal > 1) {
+                    input.value = currentVal - 1;
+                    qtyUpdateBtns[index].click();
+                }
+            });
+        });
+
+        qtyIncBtns.forEach((btn, index) => {
+            btn.addEventListener('click', function() {
+                const input = qtyInputs[index];
+                const currentVal = parseInt(input.value);
+                const max = parseInt(input.getAttribute('max'));
+                const productName = input.getAttribute('data-product-name') || 'this product';
+                if (currentVal < max) {
+                    input.value = currentVal + 1;
+                    qtyUpdateBtns[index].click();
+                } else {
+                   showNotification(`Only ${max}  ${productName} available.`, "danger");
+                }
+            });
+        });
+
+        qtyInputs.forEach((input, index) => {
+            input.addEventListener('change', function() {
+                qtyUpdateBtns[index].click();
+            });
+        });
+    });
+</script>
+{% endblock %}

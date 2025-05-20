@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment for Order #{{ bulk_order.id }}{% endblock %}
+
+{% block extra_head %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+.payment-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <h3 class="text-center mb-4">Confirm Your Bulk Order</h3>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Order #{{ bulk_order.id }}</h5>
+            <p><strong>Type:</strong> {{ bulk_order.get_design_type_display }}</p>
+            <p><strong>Advance Amount:</strong> ₹{{ amount|div:100 }}</p>
+        </div>
+    </div>
+    
+    <button id="rzp-button" class="btn btn-primary w-100">Pay Now</button>
+    
+    <p class="text-muted mt-3 small">
+        <i class="fas fa-info-circle"></i> By proceeding, you agree that bulk orders are non-refundable
+    </p>
+</div>
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "{{ razorpay_key_id }}",
+    "amount": "{{ amount }}", 
+    "currency": "INR",
+    "name": "Bhavi India Fashion",
+    "description": "Advance for  Bulk order #{{ bulk_order.id }}",
+    "image": "{% static 'images/logo.png' %}",
+    "order_id": "{{ order_id }}",
+    "handler": function(response) {
+        // On successful payment
+        window.location.href = "{% url 'bulk_orders:payment_success' bulk_order.id %}";
+    },
+    "prefill": {
+        "name": "{{ user.get_full_name }}",
+        "email": "{{ user.email }}",
+        "contact": "{{ bulk_order.contact }}"
+    },
+    "notes": {
+        "order_id": "{{ bulk_order.id }}"
+    },
+    "theme": {
+        "color": "#F37254"
+    }
+};
+
+document.getElementById('rzp-button').onclick = function(e) {
+    var rzp = new Razorpay(options);
+    rzp.open();
+    e.preventDefault();
+}
+</script>
+{% endblock %}

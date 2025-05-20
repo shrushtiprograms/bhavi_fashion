@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Search Results for "{{ query }}"</h2>
+    
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">₹{{ product.price }}</p>
+                    <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Details</a>
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-success">Add to Cart</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>No products found matching your search.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

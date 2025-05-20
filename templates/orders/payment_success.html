@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Successful | Bhavi Fashion{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h3 class="mb-0">Payment Successful</h3>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+                        <h4>Thank You for Your Order!</h4>
+                        <p class="lead mb-4">Your payment has been processed successfully.</p>
+                    </div>
+
+                    <div class="order-details bg-light p-4 rounded mb-4 text-start">
+                        <h5 class="mb-3">Order Details</h5>
+                        <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+                        <p><strong>Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+                        <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+                        <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                        <p><strong>Status:</strong> <span class="badge bg-success">Paid</span></p>
+                    </div>
+
+                    <p class="mb-4">
+                        An email confirmation with the order details has been sent to your registered email address.
+                        You can also view your order details in your account dashboard.
+                    </p>
+
+                    <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-receipt me-2"></i>View Order Details
+                        </a>
+                        <a href="{% url 'products:catalog' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

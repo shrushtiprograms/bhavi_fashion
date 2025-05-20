@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tailor Jobs - Bhavi India Fashion{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+    <h1 class="text-center mb-5">Tailor Jobs & Opportunities</h1>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Job Introduction -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Join Our Tailor Network</h3>
+                    <p>Bhavi India Fashion is looking for skilled tailors to join our growing network. We offer flexible work arrangements including:</p>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6 mb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-home fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5>Work from Home</h5>
+                                    <p class="mb-0">Complete orders at your own space and schedule</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-building fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5>Workshop Position</h5>
+                                    <p class="mb-0">Regular employment at our production centers</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-briefcase fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5>Contract Work</h5>
+                                    <p class="mb-0">Take on project-based assignments</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5>Apprenticeships</h5>
+                                    <p class="mb-0">Learn and earn while developing your skills</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previous Applications -->
+            {% if user.is_authenticated and applications %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Your Previous Applications</h3>
+                    <div class="row">
+                        {% for application in applications %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ application.job_title }}</h5>
+                                    <p class="card-text">
+                                        <strong>Status:</strong>
+                                        <span class="badge {% if application.status == 'pending' %}bg-warning{% elif application.status == 'approved' %}bg-success{% elif application.status == 'rejected' %}bg-danger{% elif application.status == 'shortlisted' %}bg-info{% endif %}">
+                                            {{ application.get_status_display }}
+                                        </span><br>
+                                        <strong>Submitted:</strong> {{ application.created_at|date:"F d, Y" }}<br>
+                                        <strong>Skills:</strong> {{ application.skills|default:"None" }}
+                                        {% if application.other_skills %}
+                                        , {{ application.other_skills }}
+                                        {% endif %}
+                                    </p>
+                                    <a href="{% url 'tailor_jobs:application_detail' application.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p class="text-muted">No previous applications found.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Job Application Form -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Application Form</h3>
+                    {% if not user.is_authenticated %}
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-circle me-2"></i> Please <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">login</a> or <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal">register</a> to submit your application.
+                    </div>
+                    {% endif %}
+
+                    <form id="jobApplicationForm" class="simplified-form" method="post" action="{% url 'tailor_jobs:apply' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- Add hidden job title field that will be populated by JavaScript -->
+                        <input type="hidden" id="job_title" name="job_title" value="Tailor Position">
+
+                        <!-- Full Name Field with Voice Helper -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="name" class="form-label mb-0 me-2">Your Name*</label>
+                            </div>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" required>
+                        </div>
+
+                        <!-- Phone Number Field with Voice Helper -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="phone" class="form-label mb-0 me-2">Phone Number*</label>
+                            </div>
+                            <input type="tel" class="form-control form-control-lg" id="phone" name="phone" required>
+                        </div>
+
+                        <!-- Address Field with Voice Helper -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="address" class="form-label mb-0 me-2">Address*</label>
+                            </div>
+                            <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+                        </div>
+
+                        <!-- Experience with Voice Helper -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="experience" class="form-label mb-0 me-2">Experience*</label>
+                            </div>
+                            <select class="form-select form-select-lg" id="experience" name="experience" required>
+                                <option value="">Select</option>
+                                <option value="No experience">No experience</option>
+                                <option value="Less than 1 year">Less than 1 year</option>
+                                <option value="1-2 years">1-2 years</option>
+                                <option value="3-5 years">3-5 years</option>
+                                <option value="5+ years">5+ years</option>
+                            </select>
+                        </div>
+
+                        <!-- Skills with Voice Helper -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label class="form-label mb-0 me-2">Skills*</label>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="Kurtis" id="skillKurtis" name="skills">
+                                        <label class="form-check-label" for="skillKurtis">
+                                            <span class="fs-5">Kurtis</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="Blouses" id="skillBlouses" name="skills">
+                                        <label class="form-check-label" for="skillBlouses">
+                                            <span class="fs-5">Blouses</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="Cholis" id="skillCholis" name="skills">
+                                        <label class="form-check-label" for="skillCholis">
+                                            <span class="fs-5">Cholis</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="Embroidery" id="skillEmbroidery" name="skills">
+                                        <label class="form-check-label" for="skillEmbroidery">
+                                            <span class="fs-5">Embroidery</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="Other" id="skillOther" name="skills">
+                                        <label class="form-check-label" for="skillOther">
+                                            <span class="fs-5">Other</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 border p-3 rounded" id="otherSkillsDiv" style="display: none;">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="other_skills" class="form-label mb-0 me-2">Other Skills</label>
+                            </div>
+                            <input type="text" class="form-control form-control-lg" id="other_skills" name="other_skills">
+                        </div>
+
+                        <!-- Work Location with Voice Helper -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="work_mode" class="form-label mb-0 me-2">Work Location*</label>
+                            </div>
+                            <select class="form-select form-select-lg" id="work_mode" name="work_mode" required>
+                                <option value="">Select</option>
+                                <option value="Work from Home">Work from Home</option>
+                                <option value="Workshop - Ahmedabad">Workshop - Ahmedabad</option>
+                                <option value="Flexible">Any</option>
+                            </select>
+                        </div>
+
+                        <!-- Sample Work Upload -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="sample_work" class="form-label mb-0 me-2">Sample Work</label>
+                            </div>
+                            <input type="file" class="form-control" id="sample_work" name="sample_work" accept="image/*">
+                            <small class="text-muted">Upload an image of your previous work (optional)</small>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="notes" class="form-label mb-0 me-2">Additional Information</label>
+                            </div>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+
+                        <!-- Terms and Conditions with Voice Helper -->
+                        <div class="mb-4 border p-3 rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <label class="form-label mb-0 me-2">Terms*</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="termsAgree" required>
+                                <label class="form-check-label fs-5" for="termsAgree">I agree to the terms and conditions</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fs-5" {% if not user.is_authenticated %}disabled{% endif %}>
+                            Submit Application
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">General Requirements</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Skills We Look For:</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Proficiency in pattern cutting</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Hand and machine stitching</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Attention to detail</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Understanding of fabrics</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Ability to work with Indian ethnic wear</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Why Join Us:</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Competitive compensation</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Flexible work arrangements</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Skill development opportunities</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Regular work flow</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Long-term relationship</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="notification-area" class="position-fixed bottom-0 end-0 p-3"></div>
+
+<!-- JavaScript to disable submit button for non-authenticated users -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show login modal if user tries to submit form while not logged in
+        {% if not user.is_authenticated %}
+        const form = document.getElementById('jobApplicationForm');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            $('#loginModal').modal('show');
+        });
+        {% endif %}
+
+        // Other skill field visibility toggle
+        const skillOther = document.getElementById('skillOther');
+        const otherSkillsDiv = document.getElementById('otherSkillsDiv');
+
+        if(skillOther && otherSkillsDiv) {
+            skillOther.addEventListener('change', function() {
+                otherSkillsDiv.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+    });
+</script>
+{% endblock %}

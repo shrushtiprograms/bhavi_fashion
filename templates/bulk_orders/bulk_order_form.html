@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bulk Order Form - Bhavi India Fashion{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Submit Bulk Order Inquiry</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="mb-3">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <form id="bulk-order-form" method="post" enctype="multipart/form-data" action="{% url 'bulk_orders:submit' %}">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <h5 class="mb-3">Business Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.business_name.id_for_label }}" class="form-label">
+                                        Business Name <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.business_name }}
+                                    {{ form.business_name.errors }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.contact_person.id_for_label }}" class="form-label">
+                                        Contact Person <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.contact_person }}
+                                    {{ form.contact_person.errors }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.contact.id_for_label }}" class="form-label">
+                                        Phone <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">+91</span>
+                                        {{ form.contact }}
+                                    </div>
+                                    {{ form.contact.errors }}
+                                    <small class="form-text text-muted">Enter a 10-digit Indian phone number.</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        Email <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.email }}
+                                    {{ form.email.errors }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Order Details</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.budget.id_for_label }}" class="form-label">
+                                        Budget (₹) <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.budget }}
+                                    {{ form.budget.errors }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.delivery_timeline.id_for_label }}" class="form-label">
+                                        Delivery Timeline <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.delivery_timeline }}
+                                    {{ form.delivery_timeline.errors }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.shipping_address.id_for_label }}" class="form-label">
+                                Shipping Address <span class="text-danger">*</span>
+                            </label>
+                            {{ form.shipping_address }}
+                            {{ form.shipping_address.errors }}
+                        </div>
+
+                        <h5 class="mb-3">Design Details</h5>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#productModal">
+                                <i class="fas fa-plus me-2"></i>Add Existing Product
+                            </button>
+                            <button type="button" class="btn btn-success" id="add-custom-product">
+                                <i class="fas fa-plus me-2"></i>Add Custom Product
+                            </button>
+                        </div>
+
+                        <table class="table table-bordered" id="designs-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Design</th>
+                                    <th>Quantity</th>
+                                    <th>Size/Color</th>
+                                    <th>Notes</th>
+                                    <th>Images (Custom Only)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="designs-tbody">
+                                <!-- Dynamic rows added here -->
+                            </tbody>
+                        </table>
+
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                Additional Notes
+                            </label>
+                            {{ form.notes }}
+                            {{ form.notes.errors }}
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Product Selection Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Select Existing Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.category.name }}</td>
+                            <td>{{ product.stock }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary select-product"
+                                        data-product-id="{{ product.id }}"
+                                        data-product-name="{{ product.name }}"
+                                        data-bs-dismiss="modal">
+                                    Select
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize design counter
+let designCounter = 0;
+
+// Add existing product row
+function addExistingProduct(productId, productName) {
+    const tbody = document.getElementById('designs-tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>Existing</td>
+        <td>
+            ${productName}
+            <input type="hidden" name="designs[${designCounter}][type]" value="existing">
+            <input type="hidden" name="designs[${designCounter}][product_id]" value="${productId}">
+        </td>
+        <td>
+            <input type="number" class="form-control" name="designs[${designCounter}][quantity]" min="10" required>
+        </td>
+        <td>
+            <input type="text" class="form-control" name="designs[${designCounter}][size_color]">
+        </td>
+        <td>
+            <textarea class="form-control" name="designs[${designCounter}][notes]"></textarea>
+        </td>
+        <td>N/A</td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm remove-row">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(row);
+    designCounter++;
+}
+
+// Add custom product row
+document.getElementById('add-custom-product').addEventListener('click', () => {
+    const tbody = document.getElementById('designs-tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>Custom</td>
+        <td>
+            <input type="text" class="form-control" name="designs[${designCounter}][custom_design_name]" placeholder="Design Name" required>
+            <input type="hidden" name="designs[${designCounter}][type]" value="custom">
+        </td>
+        <td>
+            <input type="number" class="form-control" name="designs[${designCounter}][quantity]" min="10" required>
+        </td>
+        <td>
+            <input type="text" class="form-control" name="designs[${designCounter}][size_color]">
+        </td>
+        <td>
+            <textarea class="form-control" name="designs[${designCounter}][notes]"></textarea>
+        </td>
+        <td>
+            <input type="file" class="form-control" name="designs[${designCounter}][images]" multiple accept="image/*">
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm remove-row">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(row);
+    designCounter++;
+});
+
+// Handle product selection from modal
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('select-product')) {
+        const productId = e.target.getAttribute('data-product-id');
+        const productName = e.target.getAttribute('data-product-name');
+        addExistingProduct(productId, productName);
+        const modal = document.getElementById('productModal');
+        const bootstrapModal = bootstrap.Modal.getInstance(modal);
+        if (bootstrapModal) {
+            bootstrapModal.hide();
+        }
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style = '';
+    }
+});
+
+// Remove row
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-row')) {
+        e.target.closest('tr').remove();
+    }
+});
+
+// Clean up modals on hide
+document.getElementById('productModal').addEventListener('hidden.bs.modal', () => {
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style = '';
+});
+
+// Prevent multiple modal instances
+document.getElementById('productModal').addEventListener('show.bs.modal', () => {
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+});
+
+// Client-side phone validation
+document.getElementById('id_contact').addEventListener('input', (e) => {
+    const phone = e.target.value;
+    const phoneRegex = /^\d{10}$/;
+    const errorDiv = document.getElementById('contact-error');
+    if (errorDiv) errorDiv.remove();
+    if (phone && !phoneRegex.test(phone)) {
+        e.target.classList.add('is-invalid');
+        const error = document.createElement('div');
+        error.id = 'contact-error';
+        error.className = 'invalid-feedback';
+        error.textContent = 'Please enter a valid 10-digit phone number.';
+        e.target.parentNode.appendChild(error);
+    } else {
+        e.target.classList.remove('is-invalid');
+    }
+});
+
+// Form submission
+document.getElementById('bulk-order-form').addEventListener('submit', (e) => {
+    const modal = document.getElementById('productModal');
+    const bootstrapModal = bootstrap.Modal.getInstance(modal);
+    if (bootstrapModal) {
+        bootstrapModal.hide();
+    }
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+    console.log('Submitting form...');
+});
+</script>
+{% endblock %}

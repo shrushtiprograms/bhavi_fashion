@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} | Bhavi India Fashion{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:catalog' %}">Products</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:catalog' %}?category={{ product.category.id }}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-md-6 mb-4">
+            <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for image in product.images.all %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ product.name }}">
+                    </div>
+                    {% empty %}
+                    <div class="carousel-item active">
+                        <img src="{% static 'images/product-placeholder.jpg' %}" class="d-block w-100" alt="{{ product.name }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if product.images.all.count > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Thumbnail Navigation -->
+            {% if product.images.all.count > 1 %}
+            <div class="row mt-3">
+                {% for image in product.images.all %}
+                <div class="col-3">
+                    <img src="{{ image.image.url }}" class="img-thumbnail product-thumbnail"
+                         data-bs-target="#productCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+                         {% if forloop.first %}class="active"{% endif %} alt="{{ product.name }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <h2 class="mb-3">{{ product.name }}</h2>
+            <div class="mb-3">
+                {% if product.discount_price %}
+                <span class="text-muted me-2 text-decoration-line-through">₹{{ product.price }}</span>
+                <span class="fs-4 fw-bold">₹{{ product.discount_price }}</span>
+                <span class="badge bg-danger ms-2">{{ product.get_discount_percentage }}% OFF</span>
+                {% else %}
+                <span class="fs-4 fw-bold">₹{{ product.price }}</span>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <span class="text-muted">Availability:</span>
+                {% if product.stock > 0 %}
+                <span class="text-success fw-bold">In Stock ({{ product.stock }})</span>
+                {% else %}
+                <span class="text-danger fw-bold">Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <p>{{ product.description|linebreaks }}</p>
+            </div>
+
+            <div class="mb-4">
+                <h5>Design Type:</h5>
+                <p>{{ product.design_type }}</p>
+
+                <h5>Material:</h5>
+                <p>{{ product.material }}</p>
+            </div>
+
+            {% if product.available_sizes %}
+            <div class="mb-4">
+                <h5>Available Sizes:</h5>
+                <div class="d-flex flex-wrap">
+                    {% for size in product.available_sizes.split %}
+                    <div class="size-box me-2 mb-2">{{ size }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if product.colors %}
+            <div class="mb-4">
+                <h5>Available Colors:</h5>
+                <div class="d-flex flex-wrap">
+                    {% for color in product.colors.split %}
+                    <div class="color-box me-2 mb-2" style="background-color: {{ color }}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <form action="{% url 'orders:add_to_cart' product.id %}" method="post" class="d-flex mb-4">
+                {% csrf_token %}
+                <div class="input-group quantity-selector me-3" style="width: 130px;">
+                    <button type="button" class="btn btn-outline-secondary quantity-dec">-</button>
+                    <input type="number" class="form-control text-center quantity-input" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                    <button type="button" class="btn btn-outline-secondary quantity-inc">+</button>
+                </div>
+            
+                {% if product.id in user_cart_product_ids %}
+                    <a href="{% url 'orders:cart' %}" class="btn btn-primary flex-grow-1">Go to Cart</a>
+                {% else %}
+                    <button type="submit" class="btn btn-primary flex-grow-1">Add to Cart</button>
+                {% endif %}
+            </form>
+
+            <div class="d-flex">
+                <button class="btn btn-outline-secondary me-2 wishlist-btn" data-product-id="{{ product.id }}" data-in-wishlist="{% if is_in_wishlist %}True{% else %}False{% endif %}">
+                    <i class="fa{% if is_in_wishlist %} text-danger{% endif %} fa-heart"></i> Add to Wishlist
+                </button>
+
+                <a href="#" class="btn btn-outline-secondary">
+                    <i class="fas fa-share-alt"></i> Share
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details Tabs -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="true">Details</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Reviews ({{ reviews|length }})</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab" aria-controls="shipping" aria-selected="false">Shipping & Returns</button>
+                </li>
+            </ul>
+            <div class="tab-content p-4 border border-top-0 rounded-bottom" id="productTabsContent">
+                <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+                    <h4>Product Description</h4>
+                    <p>{{ product.description|linebreaks }}</p>
+
+                    <h4 class="mt-4">Product Features</h4>
+                    <ul>
+                        <li>Design Type: {{ product.design_type }}</li>
+                        <li>Material: {{ product.material }}</li>
+                        {% if product.available_sizes %}
+                        <li>Available Sizes: {{ product.available_sizes }}</li>
+                        {% endif %}
+                        {% if product.colors %}
+                        <li>Available Colors: {{ product.colors }}</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                    <h4>Customer Reviews</h4>
+
+                    {% if reviews %}
+                    <!-- Review List -->
+                    <div class="review-list">
+                        {% for review in reviews %}
+                        <div class="review-item mb-4 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5>{{ review.title }}</h5>
+                                    <div class="stars">
+                                        {% for i in "12345" %}
+                                        <i class="fas fa-star {% if i <= review.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                        {% endfor %}
+                                        <span class="ms-2 text-muted">{{ review.created_at|date }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="fw-bold">{{ review.user.get_full_name }}</span>
+                                </div>
+                            </div>
+                            <p class="mt-2">{{ review.comment }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>No reviews yet. Be the first to review this product!</p>
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                    <!-- Add Review Form -->
+                    <div class="add-review mt-4">
+                        <h5>Write a Review</h5>
+                        <form action="{% url 'products:add_review' product.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Rating</label>
+                                <select class="form-select" id="rating" name="rating" required>
+                                    <option value="">Select Rating</option>
+                                    <option value="5">5 Stars - Excellent</option>
+                                    <option value="4">4 Stars - Very Good</option>
+                                    <option value="3">3 Stars - Good</option>
+                                    <option value="2">2 Stars - Fair</option>
+                                    <option value="1">1 Star - Poor</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Comment</label>
+                                <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="mt-4 alert alert-info">
+                        <p>Please <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">log in</a> to write a review.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="tab-pane fade" id="shipping" role="tabpanel" aria-labelledby="shipping-tab">
+                    <h4>Shipping Information</h4>
+                    <p>We ship throughout India using trusted courier services. Orders are usually processed within 24 hours and delivered within 3-7 business days, depending on your location.</p>
+
+                    <h4 class="mt-4">Return Policy</h4>
+                    <p>We have a 7-day return policy which means you have 7 days after receiving your item to request a return.</p>
+                    <p>To be eligible for a return, your item must be in the same condition that you received it, unworn or unused, with tags, and in its original packaging.</p>
+                    <p>Please note that the following items cannot be returned or exchanged:</p>
+                    <ul>
+                        <li>Sale items</li>
+                        <li>Custom designs</li>
+                        <li>Intimate or sanitary goods</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="related-products mt-5">
+        <h3 class="text-center mb-4">Related Products</h3>
+        <div class="row">
+            {% for related_product in related_products %}
+            <div class="col-md-3 col-6 mb-4">
+                {% include 'products/components/product_card.html' with product=related_product %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Quantity selector
+        const quantityDec = document.querySelector('.quantity-dec');
+        const quantityInc = document.querySelector('.quantity-inc');
+        const quantityInput = document.querySelector('.quantity-input');
+
+        if (quantityDec && quantityInc && quantityInput) {
+            quantityDec.addEventListener('click', function() {
+                let val = parseInt(quantityInput.value);
+                if (val > 1) {
+                    quantityInput.value = val - 1;
+                }
+            });
+
+            quantityInc.addEventListener('click', function() {
+                let val = parseInt(quantityInput.value);
+                let max = parseInt(quantityInput.getAttribute('max'));
+                if (val < max) {
+                    quantityInput.value = val + 1;
+                }
+            });
+        }
+
+        // Product thumbnails
+        const thumbnails = document.querySelectorAll('.product-thumbnail');
+        thumbnails.forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                const slideIndex = this.getAttribute('data-bs-slide-to');
+                const carousel = document.getElementById('productCarousel');
+                const carouselInstance = new bootstrap.Carousel(carousel);
+                carouselInstance.to(parseInt(slideIndex));
+            });
+        });
+        document.querySelector('.add-to-cart-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const button = form.querySelector('.add-to-cart-btn');
+            const productId = button.getAttribute('data-product-id');
+            const productName = button.getAttribute('data-product-name');
+            const isDisabled = button.disabled;
+    
+            if (isDisabled) {
+                alert(`${productName} is out of stock`);
+                return;
+            }
+    
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-Token': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`${productName} ${data.already_in_cart ? 'is already in your cart' : 'added to cart'}`);
+                } else {
+                    alert(data.message || 'Failed to add to cart');
+                }
+            })
+            .catch(error => {
+                alert('Error adding to cart: ' + error);
+            });
+        });
+    });
+</script>
+{% endblock %}

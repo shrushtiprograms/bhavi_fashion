@@ -1,0 +1,18 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>Your Order Has Shipped!</h2>
+
+<p>Hello {{ user.username }},</p>
+
+<p>Your custom {{ design.get_design_type_display }} has been dispatched and is on its way to you.</p>
+
+<div class="shipping-details">
+    <h3>Design #{{ design.id }}</h3>
+    <p><strong>Expected Delivery:</strong> {{ estimated_delivery }}</p>
+</div>
+
+<p>Track your order: <a href="{{ tracking_link }}">View Tracking</a></p>
+
+<p>We hope you'll love your custom creation!</p>
+{% endblock %}

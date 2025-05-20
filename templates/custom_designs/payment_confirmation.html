@@ -1,0 +1,26 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>Custom Design Advance Payment Received</h2>
+<p>Hello {{ design.user.username }},</p>
+
+<p>We've received your advance payment of ₹{{ design.advance_payment }} for Design #{{ design.id }}.</p>
+
+<div class="card">
+    <div class="card-body">
+        <h5>{{ design.get_design_type_display }}</h5>
+        <p><strong>Fabric:</strong> {{ design.fabric_type }}</p>
+        <p><strong>Color:</strong> 
+            <span style="display: inline-block; width: 16px; height: 16px; background-color: {{ design.get_color_hex }}; border: 1px solid #ddd;"></span>
+            {{ design.get_color_display }}
+        </p>
+        <p><strong>Total Budget:</strong> ₹{{ design.budget }}</p>
+        <p><strong>Advance Paid:</strong> ₹{{ design.advance_payment }}</p>
+        <p><strong>Balance Due:</strong> ₹{{ design.balance_due }}</p>
+    </div>
+</div>
+
+<p>Our tailors have started working on your custom design. We'll notify you when it's ready for delivery.</p>
+
+<p>You can view your design status at any time in your <a href="{{ site_url }}{% url 'accounts:profile' %}">account dashboard</a>.</p>
+{% endblock %}

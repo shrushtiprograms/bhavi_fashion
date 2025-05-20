@@ -1,0 +1,57 @@
+{% extends "admin/base_site.html" %}  <!-- Important: Must extend base_site.html -->
+
+{% block content %}
+<div class="module">
+    <h1>📊 Bhavi Fashion Reports</h1>
+    
+    <table style="width:100%; margin-top:20px;">
+        <thead>
+            <tr>
+                <th>Report Name</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.file_name }}</td>
+                <td>{{ report.created_at|date:"d M Y" }}</td>
+                <td>
+                    <a href="{{ report.file_path.url }}" target="_blank" class="button">View</a>
+                    <a href="{{ report.file_path.url }}" download class="button">Download</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="text-align:center;">No reports found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .button {
+        background: #ff385c;
+        color: white;
+        padding: 5px 10px;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+    .button:hover {
+        background: #e62d53;
+    }
+    table {
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background: #ff385c;
+        color: white;
+    }
+</style>
+{% endblock %}

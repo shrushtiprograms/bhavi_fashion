@@ -1,0 +1,91 @@
+<style>
+    .card {
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        background-color: #fff;
+    }
+
+    .card-body {
+        padding: 20px;
+        color: #333;
+    }
+
+    .card h5 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #007bff;
+        /* Highlighted design type */
+    }
+
+    .card p {
+        margin-bottom: 10px;
+        font-size: 1rem;
+    }
+
+    .card-body span {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    h2 {
+        color: #28a745;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    p {
+        font-size: 1.2rem;
+        color: #555;
+    }
+
+    a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% block content %}
+<div class="container">
+    <h2>Custom Design Advance Payment Received</h2>
+    <p>Hello {{ design.user.username }},</p>
+
+    <p>We've received your advance payment of ₹{{ design.advance_payment }} for Design #{{ design.id }}.</p>
+
+    <div class="card">
+        <div class="card-body">
+            <h5>{{ design.get_design_type_display }}</h5>
+            <p><strong>Fabric:</strong> {{ design.fabric_type }}</p>
+            <p><strong>Color:</strong>
+                <span style="background-color: {{ design.get_color_hex }};"></span>
+                {{ design.get_color_display }}
+            </p>
+            <p><strong>Total Budget:</strong> ₹{{ design.budget }}</p>
+            <p><strong>Advance Paid:</strong> ₹{{ design.advance_payment }}</p>
+        </div>
+    </div>
+
+    <p>Our tailors have started working on your custom design. We'll notify you when it's ready for delivery.</p>
+
+    <p>You can view your design status at any time in your <a href="{{ site_url }}{% url 'accounts:profile' %}">account
+            dashboard</a>.</p>
+</div>
+{% endblock %}

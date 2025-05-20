@@ -1,0 +1,36 @@
+{% load static %}
+<!-- Footer -->
+<footer class="bg-light py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h5 class="mb-3">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'products:catalog' %}">Products</a></li>
+                    <li><a href="{% url 'custom_designs:form' %}">Custom Design</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5 class="mb-3">Contact Info</h5>
+                <ul class="list-unstyled">
+                    <li class="text-black"><i class="fas fa-phone me-2 text-black"></i> +91 1234567890</li>
+                    <li class="text-black"><i class="fas fa-envelope me-2 text-black"></i> info@bhaviindia.com</li>
+                    <li class="text-black"><i class="fas fa-map-marker-alt me-2 text-black"></i> Mumbai, India</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5 class="mb-3">Follow Us</h5>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-dark"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" class="text-dark"><i class="fab fa-instagram fa-lg"></i></a>
+                    <a href="#" class="text-dark"><i class="fab fa-twitter fa-lg"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <p class="mb-0">&copy; 2025 Bhavi India Fashion. All rights reserved.</p>
+        </div>
+    </div>
+</footer>

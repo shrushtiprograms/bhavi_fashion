@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Address | Bhavi Fashion{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="mb-0">{{ action }} Address</h3>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Full Name</label>
+                                <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" class="form-control {% if form.name.errors %}is-invalid{% endif %}" value="{{ form.name.value|default:'' }}" required>
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                <input type="tel" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}" class="form-control {% if form.phone.errors %}is-invalid{% endif %}" value="{{ form.phone.value|default:'' }}" required>
+                                {% if form.phone.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.phone.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.address_line1.id_for_label }}" class="form-label">Address Line 1</label>
+                            <input type="text" name="{{ form.address_line1.name }}" id="{{ form.address_line1.id_for_label }}" class="form-control {% if form.address_line1.errors %}is-invalid{% endif %}" value="{{ form.address_line1.value|default:'' }}" placeholder="Street Address, House Number" required>
+                            {% if form.address_line1.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.address_line1.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.address_line2.id_for_label }}" class="form-label">Address Line 2 (Optional)</label>
+                            <input type="text" name="{{ form.address_line2.name }}" id="{{ form.address_line2.id_for_label }}" class="form-control {% if form.address_line2.errors %}is-invalid{% endif %}" value="{{ form.address_line2.value|default:'' }}" placeholder="Apartment, Floor, Building (Optional)">
+                            {% if form.address_line2.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.address_line2.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="{{ form.city.id_for_label }}" class="form-label">City</label>
+                                <input type="text" name="{{ form.city.name }}" id="{{ form.city.id_for_label }}" class="form-control {% if form.city.errors %}is-invalid{% endif %}" value="{{ form.city.value|default:'' }}" required>
+                                {% if form.city.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.city.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.state.id_for_label }}" class="form-label">State</label>
+                                <input type="text" name="{{ form.state.name }}" id="{{ form.state.id_for_label }}" class="form-control {% if form.state.errors %}is-invalid{% endif %}" value="{{ form.state.value|default:'' }}" required>
+                                {% if form.state.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.state.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.pincode.id_for_label }}" class="form-label">Pincode</label>
+                                <input type="text" name="{{ form.pincode.name }}" id="{{ form.pincode.id_for_label }}" class="form-control {% if form.pincode.errors %}is-invalid{% endif %}" value="{{ form.pincode.value|default:'' }}" required>
+                                {% if form.pincode.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.pincode.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="{{ form.is_default.name }}" id="{{ form.is_default.id_for_label }}" {% if form.is_default.value %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ form.is_default.id_for_label }}">
+                                    Set as default shipping address
+                                </label>
+                            </div>
+                            {% if form.is_default.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.is_default.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Save Address</button>
+                            <a href="{% url 'accounts:address_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

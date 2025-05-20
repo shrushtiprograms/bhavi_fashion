@@ -1,0 +1,288 @@
+<!-- templates/products/catalog.html -->
+{% extends 'base.html' %}
+{% load static product_tags %}
+
+{% block content %}
+<div class="container mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="mb-0">All Products</h1>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <form method="get" action="{% url 'products:catalog' %}" id="sort-form">
+                <div class="d-flex justify-content-md-end align-items-center">
+                    <label for="sort" class="me-2 d-none d-md-block">Sort by:</label>
+                    <select id="sort" name="sort" class="form-select form-select-sm" style="width: auto;">
+                        <option value="popular" {% if sort_by == "popular" %}selected{% endif %}>Popularity</option>
+                        <option value="newest" {% if sort_by == "newest" %}selected{% endif %}>Newest First</option>
+                        <option value="price_asc" {% if sort_by == "price_asc" %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if sort_by == "price_desc" %}selected{% endif %}>Price: High to Low</option>
+                       
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm filters-card">
+                <div class="card-body">
+                    <h5 class="mb-3">Filters</h5>
+                    <form method="get" action="{% url 'products:catalog' %}" id="filter-form">
+                        <input type="hidden" name="sort" value="{{ sort_by }}">
+
+                        <!-- Categories -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Categories</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="category" value="" id="cat-all" {% if not category_id %}checked{% endif %}>
+                                <label class="form-check-label" for="cat-all">All Categories</label>
+                            </div>
+                            {% for category in categories %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="category" value="{{ category.id }}" id="cat-{{ category.id }}" {% if category_id|stringformat:"s" == category.id|stringformat:"s" %}checked{% endif %}>
+                                <label class="form-check-label" for="cat-{{ category.id }}">{{ category.name }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Price Range</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="filter-label">₹0</span>
+                                <span class="filter-label">₹10,000+</span>
+                            </div>
+                            <input type="range" class="form-range price-slider" name="max_price" id="price-range" min="0" max="10000" step="500" value="{{ max_price|default_if_none:10000 }}">
+                            <div class="d-flex justify-content-between mt-2">
+                                <div>
+                                    <span class="filter-label">Min:</span>
+                                    <span class="filter-label" id="min-price">₹0</span>
+                                </div>
+                                <div>
+                                    <span class="filter-label">Max:</span>
+                                    <span class="filter-label" id="max-price">₹{% if max_price %}{{ max_price|floatformat:0 }}{% else %}10,000+{% endif %}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Colors with Dropdown -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">
+                                <a href="#" data-bs-toggle="collapse" data-bs-target="#color-palette" aria-expanded="false" aria-controls="color-palette">Colors</a>
+                            </h6>
+                            <div class="collapse" id="color-palette">
+                                <div class="d-flex flex-wrap">
+                                    {% for color in available_colors %}
+                                    <div class="form-check me-2 mb-2">
+                                        <input class="form-check-input" type="checkbox" name="colors" value="{{ color }}" id="color-{{ color|lower }}" {% if color in selected_colors %}checked{% endif %}>
+                                        <label class="color-swatch {% if color in selected_colors %}active{% endif %}" for="color-{{ color|lower }}" style="background-color: {{ color|lower }}; width: 20px; height: 20px; border-radius: 50%; display: inline-block; cursor: pointer;" title="{{ color }}"></label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Size Dropdown -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Size</h6>
+                            <select name="sizes" id="size-select" class="form-select">
+                                <option value="" {% if not selected_sizes %}selected{% endif %}>All Sizes</option>
+                                {% for size in available_sizes %}
+                                <option value="{{ size }}" {% if size in selected_sizes %}selected{% endif %}>{{ size }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {% comment %} <!-- Rating -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Rating</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="rating" value="" id="rating-any" {% if not selected_rating %}checked{% endif %}>
+                                <label class="form-check-label" for="rating-any">Any Rating</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="rating" value="4" id="rating-4plus" {% if selected_rating == "4" %}checked{% endif %}>
+                                <label class="form-check-label" for="rating-4plus">
+                                    <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="far fa-star text-warning"></i> & Up
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="rating" value="3" id="rating-3plus" {% if selected_rating == "3" %}checked{% endif %}>
+                                <label class="form-check-label" for="rating-3plus">
+                                    <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="far fa-star text-warning"></i><i class="far fa-star text-warning"></i> & Up
+                                </label>
+                            </div>
+                        </div> {% endcomment %}
+
+                        <!-- Availability -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Availability</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="availability" value="" id="avail-any" {% if not in_stock and not out_of_stock %}checked{% endif %}>
+                                <label class="form-check-label" for="avail-any">Any</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="availability" value="in_stock" id="in-stock" {% if in_stock %}checked{% endif %}>
+                                <label class="form-check-label" for="in-stock">In Stock</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="availability" value="out_of_stock" id="out-of-stock" {% if out_of_stock %}checked{% endif %}>
+                                <label class="form-check-label" for="out-of-stock">Out of Stock</label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'products:catalog' %}" class="btn btn-outline-secondary">Clear Filters</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <div class="row g-4">
+                {% if products %}
+                    {% for product in products %}
+                    <div class="col-6 col-md-4">
+                        {% include 'products/components/product_card.html' with product=product is_in_wishlist=product.id|add:0|in_list:wishlist_product_ids %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5">
+                        <div class="alert alert-info">
+                            <h4 class="alert-heading">No Products Found</h4>
+                            <p>No products match your filters. Try adjusting them or check back later.</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Pagination -->
+                {% if products.has_other_pages %}
+                <div class="col-12 mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if products.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">««</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">«</a></li>
+                            {% else %}
+                            <li class="page-item disabled"><span class="page-link">««</span></li>
+                            <li class="page-item disabled"><span class="page-link">«</span></li>
+                            {% endif %}
+
+                            {% for i in products.paginator.page_range %}
+                                {% if i > products.number|add:"-3" and i < products.number|add:"3" %}
+                                <li class="page-item {% if i == products.number %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if products.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">»</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ products.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">»»</a></li>
+                            {% else %}
+                            <li class="page-item disabled"><span class="page-link">»</span></li>
+                            <li class="page-item disabled"><span class="page-link">»»</span></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<div id="notification-area" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Price slider update display
+        const priceSlider = document.getElementById('price-range');
+        const maxPrice = document.getElementById('max-price');
+        if (priceSlider && maxPrice) {
+            priceSlider.addEventListener('input', function() {
+                maxPrice.textContent = this.value >= 10000 ? '₹10,000+' : '₹' + this.value;
+            });
+            priceSlider.addEventListener('change', function() {
+                document.getElementById('filter-form').submit();
+            });
+        }
+
+        // Auto-submit filter form on change
+        const filterForm = document.getElementById('filter-form');
+        if (filterForm) {
+            const inputs = filterForm.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    filterForm.submit();
+                });
+            });
+        }
+
+        // Auto-submit sort form
+        const sortSelect = document.getElementById('sort');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                document.getElementById('sort-form').submit();
+            });
+        }
+        function showNotification(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' :
+                type === 'danger' ? 'alert-danger' : 'alert-info';
+            const notification = $(`<div class="alert ${alertClass} alert-dismissible fade show" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`);
+            $('#notification-area').append(notification);
+            setTimeout(() => notification.alert('close'), 3000);
+        }
+{% comment %} 
+        $('.add-to-cart-form').on('submit', function(e) {
+            e.preventDefault();  // Prevent default form submission
+            const $form = $(this);
+            const $button = $form.find('.add-to-cart-btn');
+            const productName = $button.data('product-name');
+            const isDisabled = $button.prop('disabled');
+    
+            if (isDisabled) {
+                showNotification(`${productName} is out of stock`, 'danger');
+                return;
+            }
+    
+            $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status"></span>Loading...');
+    
+            $.ajax({
+                url: $form.attr('action'),
+                method: 'POST',
+                data: $form.serialize(),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        $button.html('<i class="fas fa-arrow-right me-2"></i>Go to Cart');
+                        setTimeout(() => {
+                            window.location.href = data.cart_url;
+                        }, 1000);  // Redirect after 1 second
+                    } else {
+                        showNotification(data.message || 'Failed to add to cart', 'danger');
+                        $button.prop('disabled', false).html('<i class="fas fa-shopping-cart me-2"></i>Add to Cart');
+                    }
+                },
+                error: function(xhr) {
+                    showNotification('Error: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'), 'danger');
+                    $button.prop('disabled', false).html('<i class="fas fa-shopping-cart me-2"></i>Add to Cart');
+                }
+            });
+        }); {% endcomment %}
+    });
+</script>
+{% endblock %}

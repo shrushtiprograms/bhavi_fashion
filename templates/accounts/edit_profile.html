@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile | Bhavi Fashion{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="mb-0">Edit Profile</h3>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row mb-4">
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    {% if user.profile_image %}
+                                        <img src="{{ user.profile_image.url }}" class="rounded-circle img-thumbnail mx-auto d-block" width="150" height="150" alt="Profile Image" id="profile-preview">
+                                    {% else %}
+                                        <img src="{% static 'images/default-profile.png' %}" class="rounded-circle img-thumbnail mx-auto d-block" width="150" height="150" alt="Default Profile Image" id="profile-preview">
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.profile_image.id_for_label }}" class="form-label">Profile Image</label>
+                                    {{ form.profile_image }}
+                                    {% if form.profile_image.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.profile_image.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                        <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" required>
+                                        {% if form.first_name.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ form.first_name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                        <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" required>
+                                        {% if form.last_name.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ form.last_name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required>
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.email.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                    <input type="tel" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}" class="form-control {% if form.phone.errors %}is-invalid{% endif %}" value="{{ form.phone.value|default:'' }}">
+                                    {% if form.phone.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.phone.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">To change your password, please click the button below. We'll send a reset link to your email address.</p>
+                    <a href="{% url 'accounts:password_reset' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-key me-2"></i>Reset Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Preview profile image before upload
+        const profileInput = document.getElementById('{{ form.profile_image.id_for_label }}');
+        const profilePreview = document.getElementById('profile-preview');
+
+        if (profileInput && profilePreview) {
+            profileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profilePreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

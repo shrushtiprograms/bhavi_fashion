@@ -1,0 +1,437 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bhavi India Fashion{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        body { font-family: 'Jost', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Marcellus', serif; }
+        :root {
+            --primary: #4A6366;
+            --secondary: #D8E1E9;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        .btn-primary { background-color: var(--primary); border-color: var(--primary); }
+        .btn-primary:hover { background-color: #3A4F52; border-color: #3A4F52; }
+        .bg-primary { background-color: var(--primary) !important; }
+        .text-primary { color: var(--primary) !important; }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:catalog' %}">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'custom_designs:form' %}">Custom Designs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'bulk_orders:form' %}">Bulk Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tailor_jobs:form' %}">Tailor Jobs</a>
+                    </li>
+                </ul>
+                <!-- <form class="form-inline my-2 my-lg-0" action="{% url 'products:product_search' %}" method="GET">
+                    <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search products..." aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        
+                        <a href="{% url 'accounts:wishlist' %}" class="text-dark me-3">
+                            <i class="fas fa-heart"></i>
+                        </a> -->
+                        <div class="d-flex align-items-center me-auto">
+                            <!-- Search Form -->
+                            <form class="d-flex me-3" action="{% url 'products:product_search' %}" method="GET">
+                                <div class="input-group">
+                                    <input class="form-control border-end-0" type="search" name="q" placeholder="Search products..." aria-label="Search" style="border-radius: 20px 0 0 20px;">
+                                    <button class="btn btn-outline-secondary border-start-0" type="submit" style="border-radius: 0 20px 20px 0;">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        
+                            <!-- Wishlist Icon -->
+                            <a href="{% url 'accounts:wishlist' %}" class="text-dark me-3" style="font-size: 1.25rem;">
+                                <i class="far fa-heart"></i>
+                            </a>
+                        <a href="{% url 'orders:cart' %}" class="text-dark position-relative">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count badge bg-primary rounded-pill position-absolute top-0 start-100 translate-middle">
+                                {% if user.is_authenticated %}
+                                    {{ user.cart.items.count|default:0 }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </span>
+                        </a>
+                    </div>
+                    {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">My Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'orders:order_history' %}">My Orders</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:wishlist' %}">Wishlist</a></li>
+                            {% if user.is_admin %}
+                            <li><hr class="dropdown-divider"></li>
+                            {% if user.is_staff or user.is_superuser %}
+                            <li><a class="dropdown-item" href="/admin/">Admin Dashboard</a></li>
+                            {% else %}
+                            <li><a class="dropdown-item" href="{% url 'admin_dashboard:check_list' %}">Admin Dashboard</a></li>
+                            {% endif %}
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div>
+                        <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5 py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3 mb-4">
+                    <h5>About Bhavi India Fashion</h5>
+                    <p class="mb-3">We celebrate India's rich heritage through exquisite ethnic wear, blending traditional craftsmanship with modern elegance to empower artisans and inspire customers worldwide.</p>
+                    <a href="{% url 'accounts:about' %}" class="text-light text-decoration-none">Discover Our Journey</a>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Customer Service</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'accounts:contact_submit' %}" class="text-light">Contact Us</a></li>
+                        <li><a href="{% url 'accounts:support' %}" class="text-light">Customer Support</a></li>
+                        <li><a href="{% url 'accounts:about' %}" class="text-light">About us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Stay Connected</h5>
+                    <p class="mb-3">Join our community for exclusive updates, style tips, and special offers.</p>
+                    <p class="small mb-0">By purchasing, you agree to our <a href="{% url 'accounts:privacy_policy' %}" class="text-light">Privacy Policy</a>.</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Contact Info</h5>
+                    <p class="mb-2 small">Email: <a href="mailto:xabc52520@gmail.com" class="text-light">support@bhaviindia.com</a></p>
+                    <p class="mb-2 small">Phone: <a href="tel:+916353546541" class="text-light">+91 1234567890</a></p>
+                    <p class="mb-2 small">WhatsApp: <a href="https://wa.me/6353546541" class="text-light">+919876543210</a></p>
+                    <p class="mb-3 small">Mon-Sat, 10AM-7PM</p>
+                    <div class="d-flex">
+                        <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" class="text-light me-3 social-icon" aria-label="Facebook">
+                            <i class="fab fa-facebook-f fa-lg"></i>
+                        </a>
+                        <a href="https://instagram.com/bhavi_india_fashion" target="_blank" rel="noopener noreferrer" class="text-light me-3 social-icon" aria-label="Instagram">
+                            <i class="fab fa-instagram fa-lg"></i>
+                        </a>
+                        <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" class="text-light me-3 social-icon" aria-label="Twitter">
+                            <i class="fab fa-twitter fa-lg"></i>
+                        </a>
+                        <a href="https://pinterest.com/" target="_blank" rel="noopener noreferrer" class="text-light social-icon" aria-label="Pinterest">
+                            <i class="fab fa-pinterest-p fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-3 bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+                    <p class="mb-0">© 2025 Bhavi India Fashion. All rights reserved.</p>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <p class="mb-0">
+                        <a href="{% url 'accounts:privacy_policy' %}" class="text-light me-3">Privacy Policy</a>
+                        <a href="{% url 'accounts:terms_of_service' %}" class="text-light">Terms of Service</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm" method="post" action="{% url 'accounts:login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="modalUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="modalUsername" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="modalPassword" name="password" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="modalRememberMe" name="remember_me">
+                            <label class="form-check-label" for="modalRememberMe">Remember me</label>
+                        </div>
+                        {% if request.GET.next %}
+                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'accounts:password_reset' %}" class="text-decoration-none">Forgot password?</a>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="mb-0">Don't have an account? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">Register</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Register</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'accounts:register' %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" name="first_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" name="last_name" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="registerUsername" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword" name="password1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="password2" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="termsAgree" required>
+                            <label class="form-check-label" for="termsAgree">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="mb-0">Already have an account? <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Button -->
+    <div class="position-fixed bottom-0 end-0 me-3 mb-3" style="z-index: 1050;">
+        <button class="btn btn-primary rounded-circle shadow p-3" data-bs-toggle="modal" data-bs-target="#chatbotModal" style="width: 60px; height: 60px;">
+            <i class="fas fa-comment-dots fa-lg"></i>
+        </button>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div class="modal fade" id="chatbotModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="d-flex align-items-center">
+                        <div class="me-2">
+                            <i class="fas fa-robot text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title mb-0">Chat with Bhavi Bot</h5>
+                            <small class="text-muted">Ask me anything about products, orders, or returns</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="chat-container p-3" style="height: 350px; overflow-y: auto;" id="chat-messages">
+                        <div class="chat-message bot-message mb-3">
+                            <div class="message-content p-3 rounded">
+                                <p class="mb-0">Hi there! I'm Bhavi Bot. How can I help you today?</p>
+                            </div>
+                            <small class="text-muted">Just now</small>
+                        </div>
+                    </div>
+                    <div class="quick-responses mb-3">
+                        <button class="btn btn-outline-primary btn-sm me-2 mb-2 quick-response-btn" data-response="track order">Track my order</button>
+                        <button class="btn btn-outline-primary btn-sm me-2 mb-2 quick-response-btn" data-response="return policy">Return policy</button>
+                        <button class="btn btn-outline-primary btn-sm me-2 mb-2 quick-response-btn" data-response="delivery time">Delivery time</button>
+                        <button class="btn btn-outline-primary btn-sm me-2 mb-2 quick-response-btn" data-response="custom design">Custom design</button>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="chat-input" placeholder="Type your message...">
+                        <button class="btn btn-primary" id="send-message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-area" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/chatbot.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+    function showNotification(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' :
+                          type === 'error' ? 'alert-danger' :
+                          type === 'info' ? 'alert-info' : 'alert-warning';
+        const notification = $(`
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `);
+        $('#notification-area').append(notification);
+        setTimeout(() => notification.alert('close'), 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        $('.add-to-cart-form').on('submit', function(e) {
+            e.preventDefault();
+            const $form = $(this);
+            const $button = $form.find('.add-to-cart-btn');
+            const productName = $button.attr('data-product-name') || 'Product';
+            const productId = $button.attr('data-product-id');
+            const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+            const quantity = parseInt($form.find('.quantity-input').val() || $form.find('input[name="quantity"]').val() || 1);
+
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+
+            $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status"></span>Loading...');
+
+            $.ajax({
+                url: $form.attr('action'),
+                method: 'POST',
+                data: $form.serialize(),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    if (data.success) {
+                        showNotification(data.message, data.already_in_cart ? 'info' : 'success');
+                        $form.replaceWith(`
+                            <a href="{% url 'orders:cart' %}" class="btn btn-primary flex-grow-1 add-to-cart-btn" style="text-align:center;" data-product-id="${productId}" data-product-name="${productName}">
+                                <i class="fas fa-shopping-cart me-2"></i>Go to Cart
+                            </a>
+                        `);
+                        const $cartCount = $('.cart-count');
+                        if ($cartCount.length && !data.already_in_cart) {
+                            $cartCount.text(parseInt($cartCount.text()) + 1);
+                        }
+                    } else {
+                        showNotification(data.message || 'Failed to add to cart', 'danger');
+                        $button.prop('disabled', false).html('<i class="fas fa-shopping-cart me-2"></i>Add to Cart');
+                    }
+                },
+                error: function(xhr) {
+                    showNotification('Error: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'), 'danger');
+                    $button.prop('disabled', false).html('<i class="fas fa-shopping-cart me-2"></i>Add to Cart');
+                }
+            });
+        });
+
+        // $('#loginForm').on('submit', function(e) {
+        //     e.preventDefault();
+        //     const $form = $(this);
+        //     const $button = $form.find('button[type="submit"]');
+        //     $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status"></span>Logging in...');
+
+        //     $.ajax({
+        //         url: $form.attr('action'),
+        //         method: 'POST',
+        //         data: $form.serialize(),
+        //         headers: {
+        //             'X-Requested-With': 'XMLHttpRequest',
+        //             'X-CSRFToken': '{{ csrf_token }}'
+        //         },
+        //         success: function(data) {
+        //             if (data.success) {
+        //                 showNotification(data.message, 'success');
+        //                 setTimeout(() => {
+        //                     window.location.href = data.redirect_url;
+        //                 }, 1000);
+        //             } else {
+        //                 showNotification(data.message, data.lockout ? 'warning' : 'error');
+        //                 $button.prop('disabled', false).html('Login');
+        //             }
+        //         },
+        //         error: function(xhr) {
+        //             showNotification('An error occurred. Please try again.', 'danger');
+        //             $button.prop('disabled', false).html('Login');
+        //         }
+        //     });
+        // });
+
+        {% for message in messages %}
+            showNotification("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment - Order #{{ order.order_number }} | Bhavi Fashion{% endblock %}
+
+{% block extra_css %}
+<style>
+    .razorpay-payment-button {
+        display: none;
+    }
+
+    /* Add this new style */
+    .payment-processing {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .processing-spinner {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .payment-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-summary {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    #payment-loading {
+        display: none;
+        /* Already defined in JS but added here for clarity */
+    }
+
+    .order-total {
+        font-size: 24px;
+        font-weight: 700;
+        color: #d81b60;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="card payment-card">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="mb-0">Complete Payment</h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Order Summary</h4>
+                            <div class="payment-summary mb-4">
+                                <p class="mb-2"><strong>Order Number:</strong> {{ order.order_number }}</p>
+                                <p class="mb-2"><strong>Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+                                <p class="mb-2"><strong>Items:</strong> {{ order.items.count }}</p>
+                                <hr>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>₹{{ order.subtotal }}</span>
+                                </div>
+                                {% if order.discount > 0 %}
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Discount:</span>
+                                    <span>-₹{{ order.discount }}</span>
+                                </div>
+                                {% endif %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Shipping:</span>
+                                    <span>₹{{ order.shipping_cost }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span>Tax:</span>
+                                    <span>₹{{ order.tax }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between order-total">
+                                    <span>Total:</span>
+                                    <span>₹{{ order.total_amount }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Payment Details</h4>
+                            <p>Please click the button below to proceed with the payment.</p>
+                            <p>You will be redirected to our secure payment gateway to complete the transaction.</p>
+
+                            <div class="mt-4">
+                                <button id="rzp-button" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-credit-card me-2"></i>Pay ₹{{ order.total_amount }}
+                                </button>
+                            </div>
+
+                            <div class="mt-4">
+                                <div class="text-center mb-3">
+                                    <small class="text-muted">Secured by</small>
+                                </div>
+                                <div class="text-center">
+                                    <img src="{% static 'images/razorpay-logo.png' %}" alt="Razorpay" height="30"
+                                        class="mx-2">
+                                    <img src="{% static 'images/secure-payment.png' %}" alt="Secure Payment" height="30"
+                                        class="mx-2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light p-3">
+                    <div class="text-center">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Order Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!-- {% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Create loading overlay
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'payment-loading';
+        loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: white;
+        font-size: 1.5rem;
+    `;
+        loadingOverlay.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+        document.body.appendChild(loadingOverlay);
+        loadingOverlay.style.display = 'none';
+
+        var options = {
+            "key": "{{ razorpay_key_id }}",
+            "amount": "{{ order.total_amount|floatformat:2|cut:'.' }}",
+            "currency": "INR",
+            "name": "Bhavi Fashion",
+            "description": "Order #{{ order.order_number }}",
+            "image": "{% static 'images/logo.png' %}",
+            "order_id": "{{ razorpay_order_id }}",
+            "handler": function (response) {
+                // Show loading overlay
+                loadingOverlay.style.display = 'flex';
+
+                // Verify payment
+                verifyPayment(response).then(redirectUrl => {
+                    window.location.href = redirectUrl;
+                }).catch(error => {
+                    alert(error);
+                    window.location.reload();
+                });
+            },
+            "modal": {
+                "ondismiss": function () {
+                    // Handle when user closes the Razorpay modal
+                    alert('Payment window was closed. Please try again.');
+                }
+            },
+            // "notes": {
+            //     "integration_test": "true",  // Forces test mode
+            // },
+            // "prefill": {
+            //     "name": "{{ order.user.get_full_name }}",
+            //     "email": "{{ order.user.email }}",
+            //     "contact": "{{ order.user.phone|default:'' }}"
+            // },
+            "notes": {
+                "integration_test": "true",
+                "skip_otp": "true"  // 👈 यह नया ऑप्शन जोड़ें
+            },
+            "prefill": {
+                "name": "TEST USER",
+                "email": "test@razorpay.com",
+                "contact": "9000000000"
+            },
+            "theme": {
+                "color": "#d81b60"
+            }
+        };
+
+        var rzp = new Razorpay(options);
+
+        document.getElementById('rzp-button').onclick = function (e) {
+            e.preventDefault();
+            rzp.open();
+        };
+
+        async function verifyPayment(response) {
+            try {
+                const res = await fetch("{% url 'orders:payment_callback' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({
+                        'razorpay_payment_id': response.razorpay_payment_id,
+                        'razorpay_order_id': response.razorpay_order_id,
+                        'razorpay_signature': response.razorpay_signature
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Payment verification failed');
+                }
+
+                return data.redirect_url;
+
+            } catch (error) {
+                console.error('Payment verification error:', error);
+                throw new Error('Payment processing failed. Please try again.');
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %} -->
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js?test=1"></script> <!-- ?test=1 forces test mode -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Create loading overlay
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'payment-loading';
+        loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: none;  /* Initially hidden */
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: white;
+        font-size: 1.5rem;
+    `;
+        loadingOverlay.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+        document.body.appendChild(loadingOverlay);
+
+        // Razorpay configuration
+        var options = {
+            "key": "{{ razorpay_key_id }}", // Must start with rzp_test_
+            "amount": "{{ order.total_amount|floatformat:2|cut:'.' }}",
+            "currency": "INR",
+            "name": "Bhavi Fashion",
+            "description": "Order #{{ order.order_number }}",
+            "order_id": "{{ razorpay_order_id }}",
+            "handler": function (response) {
+                loadingOverlay.style.display = 'flex';
+                verifyPayment(response)
+                    .then(url => window.location.href = url)
+                    .catch(err => {
+                        alert(err);
+                        window.location.reload();
+                    });
+            },
+            "modal": {
+                "ondismiss": function () {
+                    alert('Payment cancelled. Please try again.');
+                }
+            },
+            "notes": {
+                "integration_test": "true",  // Force test mode
+                "skip_otp": "true",         // Skip OTP page
+                "merchant_order_id": "test_{{ order.id }}"  // Must start with test_
+            },
+            "prefill": {
+                "name": "TEST USER",        // Exact test name
+                "email": "test@razorpay.com", // Test email
+                "contact": "9000000000"     // Test phone number
+            },
+            "theme": {
+                "color": "#d81b60"
+            }
+        };
+
+        var rzp = new Razorpay(options);
+
+        document.getElementById('rzp-button').onclick = function (e) {
+            e.preventDefault();
+            loadingOverlay.style.display = 'flex';  // Show loader before opening
+            rzp.open();
+        };
+
+        // Payment verification function
+        async function verifyPayment(response) {
+            try {
+                const res = await fetch("{% url 'orders:payment_callback' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({
+                        'razorpay_payment_id': response.razorpay_payment_id,
+                        'razorpay_order_id': response.razorpay_order_id,
+                        'razorpay_signature': response.razorpay_signature
+                    })
+                });
+
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Verification failed');
+                return data.redirect_url;
+            } catch (error) {
+                console.error('Payment error:', error);
+                throw new Error('Payment failed. Please try again.');
+            }
+        }
+
+        // CSRF token function
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

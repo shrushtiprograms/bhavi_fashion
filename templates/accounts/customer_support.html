@@ -1,0 +1,121 @@
+{% extends 'base.html'%}
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support - Bhavi India Fashion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% block content %}
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <!-- FAQ Accordion -->
+                <div class="faqs-section mt-5">
+                    <h4 class="mb-4">Frequently Asked Questions</h4>
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading1">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                                    How do I track my order?
+                                </button>
+                            </h2>
+                            <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="heading1" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    You can track your order by logging into your account and navigating to the "My Orders" section. There you will find the status and tracking information for all your orders.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                    What is your return policy?
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    We offer a 7-day return policy for all products in their original condition with tags attached. Custom-designed products cannot be returned unless there is a manufacturing defect.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                    How long does delivery take?
+                                </button>
+                            </h2>
+                            <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Standard delivery takes 3-5 business days within major cities and 5-7 business days for other locations. Express delivery (available at additional cost) takes 1-2 business days.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading4">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                                    Do you offer international shipping?
+                                </button>
+                            </h2>
+                            <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes, we ship internationally to select countries. International shipping typically takes 7-14 business days depending on the destination country and customs processing.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading5">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                                    How does the custom design process work?
+                                </button>
+                            </h2>
+                            <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Our custom design process involves four steps: selecting your design type, providing measurements, choosing fabric and design details, and final review. Custom designs typically take 2-3 weeks for production.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">Other Ways to Contact Us</h3>
+                        <div class="row g-4">
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-envelope fa-2x text-primary"></i>
+                                </div>
+                                <h5>Email Us</h5>
+                                <p>support@bhaviindia.com</p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-phone fa-2x text-primary"></i>
+                                </div>
+                                <h5>Call Us</h5>
+                                <p>+91 1234567890</p>
+                                <p class="small text-muted">Mon-Sat, 10AM-7PM</p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    <i class="fab fa-whatsapp fa-2x text-primary"></i>
+                                </div>
+                                <h5>WhatsApp</h5>
+                                <p>+91 9876543210</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/chatbot.js' %}"></script>
+</body>
+</html>

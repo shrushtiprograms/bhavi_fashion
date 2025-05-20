@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Details - Bhavi India Fashion{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="m-0">Tailor Application Details</h3>
+                    <span class="badge {% if application.status == 'pending' %}bg-warning{% elif application.status == 'approved' %}bg-success{% elif application.status == 'rejected' %}bg-danger{% elif application.status == 'shortlisted' %}bg-info{% endif %} fs-6">
+                        {{ application.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i> Thank you for applying! We will review your application and get back to you within 3-5 business days.
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-3">Personal Information</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Name:</strong></span>
+                                    <span>{{ application.name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Phone:</strong></span>
+                                    <span>{{ application.phone }}</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <div><strong>Address:</strong></div>
+                                    <div>{{ application.address }}</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-3">Job Information</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Position:</strong></span>
+                                    <span>{{ application.job_title }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Experience:</strong></span>
+                                    <span>{{ application.experience }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Work Mode:</strong></span>
+                                    <span>{{ application.work_mode }}</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <div><strong>Skills:</strong></div>
+                                    <div>
+                                        {% with skills=application.skills.split|join:", " %}
+                                        {{ skills }}
+                                        {% endwith %}
+                                        {% if application.other_skills %}
+                                        <br>
+                                        <strong>Other Skills:</strong> {{ application.other_skills }}
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {% if application.sample_work %}
+                    <div class="mb-4">
+                        <h5 class="card-title mb-3">Sample Work</h5>
+                        <div class="text-center">
+                            <img src="{{ application.sample_work.url }}" alt="Sample Work" class="img-fluid rounded" style="max-height: 300px;">
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if application.notes %}
+                    <div class="mb-4">
+                        <h5 class="card-title mb-3">Additional Notes</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ application.notes }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <h5 class="card-title mb-3">Application Timeline</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Application Submitted:</strong></span>
+                                <span>{{ application.created_at|date:"F d, Y" }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Last Updated:</strong></span>
+                                <span>{{ application.updated_at|date:"F d, Y" }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {% if application.status == 'rejected' and application.rejection_reason %}
+                    <div class="mt-4">
+                        <h5 class="card-title mb-3">Feedback</h5>
+                        <div class="alert alert-danger">
+                            <p><strong>Reason for rejection:</strong></p>
+                            <p>{{ application.rejection_reason }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'tailor_jobs:form' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Tailor Jobs
+                        </a>
+                        {% if application.status == 'pending' %}
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-primary">
+                            Go to Profile <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

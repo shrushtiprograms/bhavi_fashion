@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bulk Order Details - Bhavi India Fashion{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+    <!-- Full-screen loader overlay -->
+    <div id="pageLoader" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.7); z-index: 9999;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <img src="{% static 'images/loading.gif' %}?v={% now 'U' %}" alt="Loading..." style="width: 60px; height: 60px;">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="m-0">Bulk Order #{{ bulk_order.id }}</h3>
+                    <span class="btn btn-sm btn-{% if bulk_order.status == 'new' %}warning
+                                              {% elif bulk_order.status == 'accepted' %}success
+                                              {% elif bulk_order.status == 'rejected' %}danger
+                                              {% elif bulk_order.status == 'reviewed' %}info
+                                              {% elif bulk_order.status == 'completed' %}primary
+                                              {% else %}secondary{% endif %} disabled">
+                        {{ bulk_order.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    {% if bulk_order.status == 'new' %}
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i> Thank you for your bulk order inquiry. Our team will review your requirements and contact you within 24-48 business hours.
+                    </div>
+                    {% elif bulk_order.status == 'rejected' %}
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading"><i class="fas fa-times-circle me-2"></i>Order Rejected</h4>
+                        <p><strong>Reason:</strong> {{ bulk_order.rejection_reason }}</p>
+                        <hr>
+                        <p class="mb-0">
+                            <a href="{% url 'bulk_orders:form' %}" class="alert-link">
+                                Submit a new bulk order
+                            </a>
+                        </p>
+                    </div>
+                    {% elif bulk_order.status == 'accepted' %}
+                    <div class="alert alert-success">
+                        <h4 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Order Accepted!</h4>
+                        <p>Your order has been approved by our team.</p>
+                        <p><strong>Estimated Delivery:</strong> {{ bulk_order.delivery_timeline }}</p>
+                        <p><strong>Final Budget:</strong> ₹{{ bulk_order.budget }}</p>
+                        <p><strong>Advance Required (30%):</strong> ₹{{ bulk_order.get_advance_amount }}</p>
+                        <hr>
+                        {% if bulk_order.payment_status == 'pending' %}
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                            <i class="fas fa-credit-card me-2"></i>Pay Advance Now
+                        </button>
+                        {% else %}
+                        <p class="text-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            {% if bulk_order.payment_status == 'partial' %}
+                                Advance payment of ₹{{ bulk_order.advance_payment }} received.
+                            {% else %}
+                                Full payment received.
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-3">Business Information</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Business Name:</strong></span>
+                                    <span>{{ bulk_order.business_name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Contact Person:</strong></span>
+                                    <span>{{ bulk_order.contact_person }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Phone:</strong></span>
+                                    <span>{{ bulk_order.contact }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Email:</strong></span>
+                                    <span>{{ bulk_order.email }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-3">Order Details</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Product Type:</strong></span>
+                                    <span>{{ bulk_order.product_type }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Total Quantity:</strong></span>
+                                    <span>{{ bulk_order.quantity }} pieces</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Budget:</strong></span>
+                                    <span>₹{{ bulk_order.budget }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Delivery Timeline:</strong></span>
+                                    <span>{{ bulk_order.delivery_timeline }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="card-title mb-3">Design Details</h5>
+                        {% if bulk_order.items.exists %}
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Design</th>
+                                    <th>Quantity</th>
+                                    <th>Size/Color</th>
+                                    <th>Notes</th>
+                                    <th>Images (Custom Only)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in bulk_order.items.all %}
+                                <tr>
+                                    <td>
+                                        {% if item.product %}
+                                            {{ item.product.name }} (Existing Product)
+                                        {% else %}
+                                            {{ item.custom_design_name }} (Custom Design)
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.size_color|default:"N/A" }}</td>
+                                    <td>{{ item.notes|default:"N/A" }}</td>
+                                    <td>
+                                        {% if item.images.exists %}
+                                            {% for image in item.images.all %}
+                                                <a href="{{ image.image.url }}" target="_blank">
+                                                    <img src="{{ image.image.url }}" alt="Custom Design Image" style="max-width:100px; margin:5px;">
+                                                </a>
+                                            {% endfor %}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>No design details available.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="card-title mb-3">Shipping Address</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ bulk_order.shipping_address }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if bulk_order.notes %}
+                    <div class="mb-4">
+                        <h5 class="card-title mb-3">Additional Notes</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ bulk_order.notes }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <h5 class="card-title mb-3">Order Timeline</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Order Submitted:</strong></span>
+                                <span>{{ bulk_order.created_at|date:"F d, Y" }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Last Updated:</strong></span>
+                                <span>{{ bulk_order.updated_at|date:"F d, Y" }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {% if bulk_order.status == 'rejected' and bulk_order.rejection_reason %}
+                    <div class="mt-4">
+                        <h5 class="card-title mb-3">Feedback</h5>
+                        <div class="alert alert-danger">
+                            <p><strong>Reason for rejection:</strong></p>
+                            <p>{{ bulk_order.rejection_reason }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'bulk_orders:form' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Bulk Orders
+                        </a>
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-primary">
+                            Go to Profile <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Confirm Order & Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Bulk orders require a 30% advance payment to confirm your order.
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Order Summary</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Order ID</th>
+                            <td>#{{ bulk_order.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Total Amount</th>
+                            <td>₹{{ bulk_order.budget }}</td>
+                        </tr>
+                        <tr>
+                            <th>Advance (30%)</th>
+                            <td class="fw-bold">₹{{ bulk_order.get_advance_amount }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                    <label class="form-check-label" for="agreeTerms">
+                        I understand that bulk orders are non-refundable once payment is made
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="rzp-button" class="btn btn-primary">
+                    Proceed to Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+
+
+// Show page loader
+function showPageLoader() {
+    document.getElementById('pageLoader').classList.remove('d-none');
+}
+
+// Hide page loader
+function hidePageLoader() {
+    document.getElementById('pageLoader').classList.add('d-none');
+}
+
+document.getElementById('rzp-button').onclick = function(e) {
+    if (!document.getElementById('agreeTerms').checked) {
+        showNotification('Please agree to the terms before proceeding', 'error');
+        return;
+    }
+
+    // Disable button to prevent multiple clicks
+    document.getElementById('rzp-button').disabled = true;
+
+    console.log('Initiating payment for order:', {{ bulk_order.id }});
+    fetch("{% url 'bulk_orders:initiate_payment' bulk_order.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value || '{{ csrf_token }}'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ order_id: {{ bulk_order.id }} })
+    })
+    .then(response => {
+        console.log('Response status:', response.status, 'OK:', response.ok);
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP error! Status: ${response.status}, Response: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Payment response:', data);
+        if (data.error) {
+            showNotification('Payment error: ' + data.error, 'error');
+            // Reset button
+            document.getElementById('rzp-button').disabled = false;
+            return;
+        }
+
+        if (!data.razorpay_key_id || !data.razorpay_order_id || !data.amount || data.amount < 100) {
+            showNotification('Invalid payment data from server', 'error');
+            console.error('Invalid data:', data);
+            // Reset button
+            document.getElementById('rzp-button').disabled = false;
+            return;
+        }
+
+        var options = {
+            "key": data.razorpay_key_id,
+            "amount": data.amount,
+            "currency": data.currency,
+            "name": "Bhavi India Fashion",
+            "description": "Advance Payment for Bulk Order #{{ bulk_order.id }}",
+            "order_id": data.razorpay_order_id,
+            "handler": function(response) {
+                console.log('Payment successful:', response);
+                if (response.razorpay_payment_id && response.razorpay_order_id && response.razorpay_signature) {
+                    // Close modal
+                    var paymentModal = document.getElementById('paymentModal');
+                    var bootstrapModal = bootstrap.Modal.getInstance(paymentModal);
+                    if (bootstrapModal) {
+                        bootstrapModal.hide();
+                    }
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                    document.body.classList.remove  = '';
+                    document.body.style = '';
+
+                    // Show page loader
+                    showPageLoader();
+
+                    // Send payment confirmation to server
+                    fetch("{% url 'bulk_orders:payment_success' bulk_order.id %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    })
+                    .then(res => {
+                        console.log('Payment success response:', res.status, res.ok);
+                        // Delay for UX (2 seconds) before reloading
+                        setTimeout(() => {
+                            hidePageLoader();
+                            window.location.assign("{% url 'bulk_orders:details' bulk_order.id %}");
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Payment confirmation error:', err);
+                        // Proceed with reload even if server confirmation fails
+                        setTimeout(() => {
+                            hidePageLoader();
+                            window.location.assign("{% url 'bulk_orders:details' bulk_order.id %}");
+                        }, 2000);
+                    });
+                } else {
+                    showNotification('Incomplete payment response', 'error');
+                    console.error('Incomplete response:', response);
+                    // Reset button
+                    document.getElementById('rzp-button').disabled = false;
+                    hidePageLoader();
+                }
+            },
+            "prefill": {
+                "name": "{{ bulk_order.contact_person }}",
+                "email": "{{ bulk_order.email }}",
+                "contact": "{{ bulk_order.contact }}"
+            },
+            "theme": {
+                "color": "#F37254"
+            }
+        };
+
+        var rzp = new Razorpay(options);
+        rzp.on('payment.failed', function(response) {
+            console.error('Payment failed:', response);
+            var errorMsg = response.error && response.error.description 
+                ? `${response.error.code}: ${response.error.description}`
+                : 'Unknown payment error';
+            showNotification('Payment failed: ' + errorMsg, 'error');
+            // Reset button
+            document.getElementById('rzp-button').disabled = false;
+        });
+        rzp.open();
+        e.preventDefault();
+    })
+    .catch(error => {
+        console.error('Payment initiation error:', error);
+        showNotification('Error initiating payment: ' + error.message, 'error');
+        // Reset button
+        document.getElementById('rzp-button').disabled = false;
+    });
+};
+</script>
+{% endblock %}

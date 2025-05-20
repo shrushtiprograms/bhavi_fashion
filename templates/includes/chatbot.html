@@ -1,0 +1,201 @@
+{% load static %}
+<!-- Chatbot Widget -->
+<div class="chatbot-widget">
+    <div class="chatbot-button" id="chatbot-toggle">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+    <div class="chatbot-box" id="chatbot-box">
+        <div class="chatbot-header">
+            <h6 class="m-0">Bhavi Assistant</h6>
+            <button type="button" class="btn-close btn-sm" id="chatbot-close" aria-label="Close"></button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    Hello! I'm Bhavi Assistant. How can I help you today?
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input" placeholder="Type your message..." class="form-control">
+            <button type="button" id="chatbot-send" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chatbot-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+    
+    .chatbot-button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: var(--primary-color, #0d6efd);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        font-size: 24px;
+    }
+    
+    .chatbot-box {
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        width: 300px;
+        height: 400px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .chatbot-header {
+        background-color: var(--primary-color, #0d6efd);
+        color: white;
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .chatbot-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .message {
+        margin-bottom: 10px;
+        max-width: 80%;
+    }
+    
+    .bot-message {
+        align-self: flex-start;
+    }
+    
+    .user-message {
+        align-self: flex-end;
+    }
+    
+    .message-content {
+        padding: 8px 12px;
+        border-radius: 18px;
+        word-break: break-word;
+    }
+    
+    .bot-message .message-content {
+        background-color: #f1f1f1;
+    }
+    
+    .user-message .message-content {
+        background-color: var(--primary-color, #0d6efd);
+        color: white;
+    }
+    
+    .chatbot-input {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #eee;
+    }
+    
+    .chatbot-input input {
+        flex: 1;
+        border-radius: 20px;
+        margin-right: 10px;
+    }
+    
+    .chatbot-input button {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotBox = document.getElementById('chatbot-box');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        
+        // Toggle chatbot
+        chatbotToggle.addEventListener('click', function() {
+            chatbotBox.style.display = 'flex';
+            chatbotInput.focus();
+        });
+        
+        // Close chatbot
+        chatbotClose.addEventListener('click', function() {
+            chatbotBox.style.display = 'none';
+        });
+        
+        // Send message
+        function sendMessage() {
+            const message = chatbotInput.value.trim();
+            if (message) {
+                // Add user message
+                addMessage(message, 'user');
+                chatbotInput.value = '';
+                
+                // Simulate bot response (in a real app, this would be an API call)
+                setTimeout(() => {
+                    const responses = [
+                        "I'm here to help! How can I assist you with your shopping today?",
+                        "Thank you for your message. Let me check that for you.",
+                        "We have a great selection of ethnic wear. Would you like to see our latest collection?",
+                        "Our custom design service allows you to create your perfect outfit. Would you like more information?",
+                        "You can track your order in the 'My Orders' section of your account."
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, 'bot');
+                }, 1000);
+            }
+        }
+        
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender + '-message');
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            contentDiv.textContent = text;
+            
+            messageDiv.appendChild(contentDiv);
+            chatbotMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+        
+        // Send message on button click
+        chatbotSend.addEventListener('click', sendMessage);
+        
+        // Send message on Enter key
+        chatbotInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    });
+</script>

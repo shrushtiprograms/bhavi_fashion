@@ -1,0 +1,26 @@
+<!-- bulk_orders/payment_success.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-6 mx-auto text-center">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="fas fa-check-circle"></i> Payment Successful</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+                        <h4>Thank You for Your Payment!</h4>
+                        <p>Your advance payment of ₹{{ bulk_order.advance_paid }} for bulk order #{{ bulkorder.id }} has been received successfully.</p>
+                    </div>
+                    <a href="{% url 'bulk_orders:details' bulk_order.id %}" class="btn btn-primary">
+                        View Order Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

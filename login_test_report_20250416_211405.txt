@@ -1,0 +1,153 @@
+BHAVI INDIA FASHION - LOGIN COMPONENT TEST REPORT
+============================================================
+Date and Time: 2025-04-16 21:14:05
+============================================================
+
+test_forgot_password_link (tests.login.test_login.LoginTestCase.test_forgot_password_link)
+Test Case ID: 11 ... FAIL
+test_login_admin_account (tests.login.test_login.LoginTestCase.test_login_admin_account)
+Test Case ID: 9 ... ERROR
+test_login_disabled_account (tests.login.test_login.LoginTestCase.test_login_disabled_account)
+Test Case ID: 7 ... FAIL
+test_login_empty_fields (tests.login.test_login.LoginTestCase.test_login_empty_fields)
+Test Case ID: 5 ... FAIL
+test_login_invalid_credentials (tests.login.test_login.LoginTestCase.test_login_invalid_credentials)
+Test Case ID: 2 ... FAIL
+test_login_valid_credentials (tests.login.test_login.LoginTestCase.test_login_valid_credentials)
+Test Case ID: 1 ... ERROR
+test_login_without_password (tests.login.test_login.LoginTestCase.test_login_without_password)
+Test Case ID: 4 ... FAIL
+test_login_without_username (tests.login.test_login.LoginTestCase.test_login_without_username)
+Test Case ID: 3 ... FAIL
+test_register_link (tests.login.test_login.LoginTestCase.test_register_link)
+Test Case ID: 12 ... FAIL
+
+======================================================================
+ERROR: test_login_admin_account (tests.login.test_login.LoginTestCase.test_login_admin_account)
+Test Case ID: 9
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 188, in test_login_admin_account
+    self.assertTrue(response.context['user'].is_authenticated)
+                    ~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_login_valid_credentials (tests.login.test_login.LoginTestCase.test_login_valid_credentials)
+Test Case ID: 1
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 70, in test_login_valid_credentials
+    self.assertTrue(response.context['user'].is_authenticated)
+                    ~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_forgot_password_link (tests.login.test_login.LoginTestCase.test_forgot_password_link)
+Test Case ID: 11
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 206, in test_forgot_password_link
+    self.assertContains(response, 'Forgot password?')
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 609, in assertContains
+    text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 571, in _assert_contains
+    self.assertEqual(
+AssertionError: 400 != 200 : Couldn't retrieve content: Response code was 400 (expected 200)
+
+======================================================================
+FAIL: test_login_disabled_account (tests.login.test_login.LoginTestCase.test_login_disabled_account)
+Test Case ID: 7
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 169, in test_login_disabled_account
+    self.assertContains(response, "This account is inactive")
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 609, in assertContains
+    text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 571, in _assert_contains
+    self.assertEqual(
+AssertionError: 400 != 200 : Couldn't retrieve content: Response code was 400 (expected 200)
+
+======================================================================
+FAIL: test_login_empty_fields (tests.login.test_login.LoginTestCase.test_login_empty_fields)
+Test Case ID: 5
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 148, in test_login_empty_fields
+    self.assertContains(response, "This field is required")
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 609, in assertContains
+    text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 571, in _assert_contains
+    self.assertEqual(
+AssertionError: 400 != 200 : Couldn't retrieve content: Response code was 400 (expected 200)
+
+======================================================================
+FAIL: test_login_invalid_credentials (tests.login.test_login.LoginTestCase.test_login_invalid_credentials)
+Test Case ID: 2
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 91, in test_login_invalid_credentials
+    self.assertContains(response, "Please enter a correct username and password")
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 609, in assertContains
+    text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 571, in _assert_contains
+    self.assertEqual(
+AssertionError: 400 != 200 : Couldn't retrieve content: Response code was 400 (expected 200)
+
+======================================================================
+FAIL: test_login_without_password (tests.login.test_login.LoginTestCase.test_login_without_password)
+Test Case ID: 4
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 129, in test_login_without_password
+    self.assertContains(response, "This field is required")
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 609, in assertContains
+    text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 571, in _assert_contains
+    self.assertEqual(
+AssertionError: 400 != 200 : Couldn't retrieve content: Response code was 400 (expected 200)
+
+======================================================================
+FAIL: test_login_without_username (tests.login.test_login.LoginTestCase.test_login_without_username)
+Test Case ID: 3
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 110, in test_login_without_username
+    self.assertContains(response, "This field is required")
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 609, in assertContains
+    text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 571, in _assert_contains
+    self.assertEqual(
+AssertionError: 400 != 200 : Couldn't retrieve content: Response code was 400 (expected 200)
+
+======================================================================
+FAIL: test_register_link (tests.login.test_login.LoginTestCase.test_register_link)
+Test Case ID: 12
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Shrushti\Desktop\bhavi_fashion\bhavi_fashion\tests\login\test_login.py", line 225, in test_register_link
+    self.assertContains(response, 'Register')
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 609, in assertContains
+    text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Shrushti\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\test\testcases.py", line 571, in _assert_contains
+    self.assertEqual(
+AssertionError: 400 != 200 : Couldn't retrieve content: Response code was 400 (expected 200)
+
+----------------------------------------------------------------------
+Ran 9 tests in 12.270s
+
+FAILED (failures=7, errors=2)
+
+============================================================
+TEST SUMMARY
+Total Tests: 9
+Passed: 0
+Failed: 7
+Errors: 2

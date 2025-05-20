@@ -1,0 +1,40 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>Design #{{ design.id }} Status Update</h2>
+<p>Hello {{ user.username }},</p>
+
+<p>The status of your custom design has been updated from <strong>{{ old_status }}</strong> to <strong>{{ design.get_status_display }}</strong>.</p>
+
+{% if design.status == 'accepted' %}
+<div class="alert alert-success">
+    <h3>Your Design Has Been Accepted!</h3>
+    <p>We're excited to create your custom {{ design.get_design_type_display }}!</p>
+    
+    <p><strong>Next Steps:</strong></p>
+    <ol>
+        <li>Pay the 30% advance amount of ₹{{ design.get_advance_amount }} to confirm your order</li>
+        <li>Our tailors will begin working on your design</li>
+        <li>We'll notify you when your order is ready for delivery</li>
+    </ol>
+    
+    <a href="{{ site_url }}{% url 'custom_designs:details' design.id %}" class="btn btn-primary">
+        View Design & Make Payment
+    </a>
+</div>
+{% elif design.status == 'rejected' %}
+<div class="alert alert-warning">
+    <h3>Design Modification Required</h3>
+    <p>Our design team has reviewed your request and found the following issue:</p>
+    <blockquote>{{ design.rejection_reason }}</blockquote>
+    
+    <p>Please submit a new design request with the suggested modifications.</p>
+    
+    <a href="{{ site_url }}{% url 'custom_designs:form' %}" class="btn btn-primary">
+        Create New Design
+    </a>
+</div>
+{% endif %}
+
+<p>You can view your design details at any time by visiting your <a href="{{ site_url }}{% url 'accounts:profile' %}">account dashboard</a>.</p>
+{% endblock %}

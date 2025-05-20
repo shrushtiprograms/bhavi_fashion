@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed | Bhavi Fashion{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white text-center py-3">
+                    <h3 class="mb-0">Payment Failed</h3>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-times-circle fa-5x text-danger mb-3"></i>
+                        <h4>We couldn't process your payment</h4>
+                        <p class="lead mb-4">Your payment was not successful. Don't worry, your order is still saved.</p>
+                    </div>
+                    {% if order %}
+                    <div class="order-details bg-light p-4 rounded mb-4 text-start">
+                        <h5 class="mb-3">Order Details</h5>
+                        <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+                        <p><strong>Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+                        <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+                        <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                        <p><strong>Status:</strong> <span class="badge bg-danger">Failed</span></p>
+                    </div>
+                    {% endif %}
+
+                    <p class="mb-4">
+                        Possible reasons for payment failure:
+                    </p>
+                    <ul class="list-group list-group-flush mb-4 text-start">
+                        <li class="list-group-item bg-light">Insufficient funds in your account</li>
+                        <li class="list-group-item bg-light">Bank declined the transaction</li>
+                        <li class="list-group-item bg-light">Incorrect card details</li>
+                        <li class="list-group-item bg-light">Network or connectivity issues</li>
+                    </ul>
+
+                    <p class="mb-4">
+                        You can try again with the same or a different payment method.
+                    </p>
+
+                    <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                        {% if order and order.id %}
+                        <a href="{% url 'orders:payment' order.id %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-redo me-2"></i>Try Again
+                        </a>
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-receipt me-2"></i>View Order Details
+                        </a>
+                        {% else %}
+                        <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-redo me-2"></i>Return to Checkout
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-light p-3">
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Need help? <a href="#" class="text-decoration-none">Contact our support team</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

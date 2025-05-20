@@ -1,0 +1,970 @@
+{% extends 'base.html' %}
+{% load order_tags %}
+{% load static %}
+
+{% block title %}My Profile - Bhavi India Fashion{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm profile-sidebar">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="rounded-circle mb-3" width="100" height="100">
+                        {% else %}
+                        <div class="avatar-placeholder mb-3 mx-auto">
+                            <i class="fas fa-user fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="mb-0">{{ user.get_full_name }}</h5>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+
+                    <nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <button class="nav-link" id="v-pills-overview-tab" data-bs-toggle="pill" data-bs-target="#v-pills-overview" type="button" role="tab" aria-selected="false">
+                            <i class="fas fa-th-large me-2"></i> Overview
+                        </button>
+                        <button class="nav-link" id="v-pills-orders-tab" data-bs-toggle="pill" data-bs-target="#v-pills-orders" type="button" role="tab" aria-selected="false">
+                            <i class="fas fa-shopping-bag me-2"></i> My Orders
+                        </button>
+                        <button class="nav-link" id="v-pills-wishlist-tab" data-bs-toggle="pill" data-bs-target="#v-pills-wishlist" type="button" role="tab" aria-selected="false">
+                            <i class="fas fa-heart me-2"></i> My Wishlist
+                        </button>
+                        <button class="nav-link" id="v-pills-address-tab" data-bs-toggle="pill" data-bs-target="#v-pills-address" type="button" role="tab" aria-selected="false">
+                            <i class="fas fa-map-marker-alt me-2"></i> Addresses
+                        </button>
+                        <button class="nav-link" id="v-pills-custom-designs-tab" data-bs-toggle="pill" data-bs-target="#v-pills-custom-designs" type="button" role="tab" aria-selected="false">
+                            <i class="fas fa-tshirt me-2"></i> Custom Designs
+                        </button>
+                        <button class="nav-link" id="v-pills-bulk-orders-tab" data-bs-toggle="pill" data-bs-target="#v-pills-bulk-orders" type="button" role="tab" aria-selected="false">
+                            <i class="fas fa-boxes me-2"></i> Bulk Orders
+                        </button>
+                        <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-selected="false">
+                            <i class="fas fa-cog me-2"></i> Edit Profile
+                        </button>
+                    </nav>
+
+                    <hr>
+
+                    <form action="{% url 'accounts:logout' %}" method="post" class="d-grid">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="tab-content" id="v-pills-tabContent">
+                        <!-- Overview Tab -->
+                        <div class="tab-pane fade" id="v-pills-overview" role="tabpanel">
+                            <h4 class="mb-4">Account Overview</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Personal Information</h5>
+                                            <p class="mb-1"><strong>Name:</strong> {{ user.get_full_name }}</p>
+                                            <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                                            <p class="mb-1"><strong>Phone:</strong> {{ user.phone|default:"Not provided" }}</p>
+                                            <button class="btn btn-sm btn-outline-primary mt-3" id="edit-profile-btn">
+                                                Edit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Default Address</h5>
+                                            {% if default_address %}
+                                            <p class="mb-1">{{ default_address.name }}</p>
+                                            <p class="mb-1">{{ default_address.address_line1 }}</p>
+                                            {% if default_address.address_line2 %}
+                                            <p class="mb-1">{{ default_address.address_line2 }}</p>
+                                            {% endif %}
+                                            <p class="mb-1">{{ default_address.city }}, {{ default_address.state }} - {{ default_address.pincode }}</p>
+                                            <p class="mb-1">Phone: {{ default_address.phone }}</p>
+                                            {% else %}
+                                            <p class="text-muted">No default address set.</p>
+                                            {% endif %}
+                                            <button class="btn btn-sm btn-outline-primary mt-3" id="manage-addresses-btn">
+                                                Manage Addresses
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Recent Orders</h5>
+                                            <div class="recent-orders">
+                                                {% if recent_orders %}
+                                                {% for order in recent_orders %}
+                                                <div class="card mb-3">
+                                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                                        <h6 class="mb-0">Order #{{ order.order_number|default:order.id }}</h6>
+                                                        <small>{{ order.created_at|date:"d M Y" }}</small>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        {% for item in order.items.all %}
+                                                        <div class="d-flex mb-2">
+                                                            <div class="flex-shrink-0">
+                                                                {% if item.product.primary_image.image %}
+                                                                <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                                                {% else %}
+                                                                <div class="bg-light text-center" style="width: 60px; height: 60px;">
+                                                                    <i class="fas fa-tshirt text-muted"></i>
+                                                                </div>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="flex-grow-1 ms-3">
+                                                                <p class="mb-1"><a href="{% url 'products:detail' item.product.id %}">{{ item.product.name }}</a></p>
+                                                                <p class="mb-0 text-muted">₹{{ item.product.discounted_price|default:item.product.price }}</p>
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                                            <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% else %}bg-secondary{% endif %}">
+                                                                {{ order.get_status_display }}
+                                                            </span>
+                                                            <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                                {% else %}
+                                                <p class="text-muted">No orders placed yet.</p>
+                                                {% endif %}
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary mt-3" id="view-all-orders-btn">
+                                                View All Orders
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Wishlist</h5>
+                                            <div class="wishlist-preview">
+                                                {% if wishlist_items %}
+                                                <div class="list-group list-group-flush">
+                                                    {% for item in wishlist_items|slice:":3" %}
+                                                    <a href="{% url 'products:detail' item.product.id %}?from=profile_wishlist" class="list-group-item list-group-item-action">
+                                                        <div class="d-flex">
+                                                            <div class="flex-shrink-0">
+                                                                {% if item.product.primary_image %}
+                                                                <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="cart-item-image me-3">
+                                                                {% elif item.product.images.first %}
+                                                                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="cart-item-image me-3">
+                                                                {% else %}
+                                                                <img src="{% static 'images/product-placeholder.jpg' %}" alt="{{ item.product.name }}" class="cart-item-image me-3">
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="flex-grow-1 ms-3">
+                                                                <h6 class="mb-1">{{ item.product.name }}</h6>
+                                                                <p class="mb-0 text-primary">₹{{ item.product.discounted_price|default:item.product.price }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                    {% endfor %}
+                                                </div>
+                                                {% else %}
+                                                <p class="text-muted">Your wishlist is empty.</p>
+                                                {% endif %}
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary mt-3" id="view-wishlist-btn">
+                                                View Wishlist
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                     
+                         <!-- Orders Tab -->
+                         <div class="tab-pane fade" id="v-pills-orders" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">My Orders</h4>
+                                <a href="{% url 'products:catalog' %}" class="btn btn-outline-primary">Shop More</a>
+                            </div>
+                            {% if orders %}
+                            <div class="orders-list">
+                                {% for order in orders %}
+                                <div class="card mb-3">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Order #{{ order.order_number|default:order.id }}</h6>
+                                        <span>{{ order.created_at|date:"d M Y, h:i A" }}</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-borderless">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Product</th>
+                                                        <th>Quantity</th>
+                                                        <th>Price</th>
+                                                        <th>Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for item in order.items.all %}
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="flex-shrink-0">
+                                                                    <a href="{% url 'products:detail' item.product.id %}">
+                                                                    {% if item.product.primary_image.image %}
+                                                                    <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                                                                    {% else %}
+                                                                    <div class="bg-light text-center" style="width: 80px; height: 80px;">
+                                                                        <i class="fas fa-tshirt fa-2x text-muted"></i>
+                                                                    </div>
+                                                                    {% endif %}
+                                                                </a>
+                                                                </div>
+                                                                <div class="flex-grow-1 ms-3">
+                                                                    <a href="{% url 'products:detail' item.product.id %}">{{ item.product.name }}</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>{{ item.quantity }}</td>
+                                                        <td>₹{{ item.price|floatformat:2 }}</td>
+                                                        <td>₹{{ item.quantity|multiply:item.price|floatformat:2 }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span>Subtotal:</span>
+                                                <span>₹{{ order.subtotal|floatformat:2 }}</span>
+                                            </div>
+                                            {% if order.discount > 0 %}
+                                            
+                                            {% endif %}
+                                            {% if order.tax > 0 %}
+                                            <div class="d-flex justify-content-between align-items-center mb-2 text-danger">
+                                                <span>Tax (GST):</span>
+                                                <span>+₹{{ order.tax|floatformat:2 }}</span>
+                                            </div>
+                                            {% endif %}
+                                            {% if order.shipping > 0 %}
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span>Shipping:</span>
+                                                <span>+₹{{ order.shipping|floatformat:2 }}</span>
+                                            </div>
+                                            {% endif %}
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span>Payment Method:</span>
+                                                <span>{{ order.payment_method|default:"Razorpay"|title }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="badge {% if order.order_status == 'pending' %}bg-warning{% elif order.order_status == 'processing' %}bg-info{% elif order.orer_status == 'shipped' %}bg-primary{% elif order.order_status == 'delivered' %}bg-success{% else %}bg-success{% endif %}">
+                                                    {{ order.order_status }}
+                                                </span>
+                                                <p class="mb-0 text-primary fw-bold">Total: ₹{{ order.total_amount|floatformat:2 }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-end mt-2">
+                                            <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-primary">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <!-- Pagination -->
+                            {% if orders.has_other_pages %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if orders.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?orders_page=1" aria-label="First">
+                                            <span aria-hidden="true">««</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?orders_page={{ orders.previous_page_number }}" aria-label="Previous">
+                                            <span aria-hidden="true">«</span>
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="First">
+                                            <span aria-hidden="true">««</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="Previous">
+                                            <span aria-hidden="true">«</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% for num in orders.paginator.page_range %}
+                                    {% if orders.number == num %}
+                                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                                    <li class="page-item"><a class="page-link" href="?orders_page={{ num }}">{{ num }}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% if orders.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?orders_page={{ orders.next_page_number }}" aria-label="Next">
+                                            <span aria-hidden="true">»</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?orders_page={{ orders.paginator.num_pages }}" aria-label="Last">
+                                            <span aria-hidden="true">»»</span>
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="Next">
+                                            <span aria-hidden="true">»</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="Last">
+                                            <span aria-hidden="true">»»</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+                            {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-4">
+                                    <i class="fas fa-shopping-bag fa-5x text-muted"></i>
+                                </div>
+                                <h3 class="mb-3">No orders yet</h3>
+                                <p class="text-muted mb-4">You haven't placed any orders yet. Explore our products and place your first order!</p>
+                                <a href="{% url 'products:catalog' %}" class="btn btn-primary">
+                                    Start Shopping
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Wishlist Tab -->
+                        <div class="tab-pane fade" id="v-pills-wishlist" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">My Wishlist</h4>
+                                <a href="{% url 'accounts:wishlist' %}" class="btn btn-outline-primary">View Full Wishlist</a>
+                            </div>
+
+                            {% if wishlist_items %}
+                            <div class="row g-3">
+                                {% for item in wishlist_items %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="product-card">
+                                        <div class="product-img-wrapper">
+                                            {% if item.product.primary_image %}
+                                            <a href="{% url 'products:detail' item.product.id %}?from=profile_wishlist">
+                                                <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="product-img">
+                                            </a>
+                                            {% elif item.product.images.first %}
+                                            <a href="{% url 'products:detail' item.product.id %}?from=profile_wishlist">
+                                                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="product-img">
+                                            </a>
+                                            {% else %}
+                                            <img src="{% static 'images/product-placeholder.jpg' %}" alt="{{ item.product.name }}" class="product-img">
+                                            {% endif %}
+                                            <div class="product-labels">
+                                                {% if item.product.is_new %}
+                                                <span class="badge bg-success">New</span>
+                                                {% endif %}
+                                                {% if item.product.discount_percentage > 0 %}
+                                                <span class="badge bg-danger">{{ item.product.discount_percentage }}% OFF</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="wishlist-remove">
+                                                <form action="{% url 'accounts:remove_from_wishlist' item.id %}" method="post" class="remove-from-wishlist-form">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Remove from wishlist">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="product-details">
+                                            <a href="{% url 'products:detail' item.product.id %}?from=profile_wishlist">
+                                                <h3 class="product-title">{{ item.product.name }}</h3>
+                                            </a>
+                                            <div class="product-price">
+                                                <span class="price-current">₹{{ item.product.discounted_price|default:item.product.price }}</span>
+                                                {% if item.product.discount_percentage > 0 %}
+                                                <span class="price-original">₹{{ item.product.price }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-4">
+                                    <i class="far fa-heart fa-5x text-muted"></i>
+                                </div>
+                                <h3 class="mb-3">Your wishlist is empty</h3>
+                                <p class="text-muted mb-4">Add items you love to your wishlist. Review them anytime and easily move them to the cart.</p>
+                                <a href="{% url 'products:catalog' %}" class="btn btn-primary">
+                                    Explore Products
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Address Tab -->
+                        <div class="tab-pane fade" id="v-pills-address" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">My Addresses</h4>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                    <i class="fas fa-plus me-2"></i>Add New Address
+                                </button>
+                            </div>
+
+                            {% if addresses %}
+                            <div class="row">
+                                {% for address in addresses %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 {% if address.is_default %}border-primary{% endif %}">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">{{ address.name }}</h5>
+                                            {% if address.is_default %}
+                                            <span class="badge bg-primary">Default</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-1">{{ address.address_line1 }}</p>
+                                            {% if address.address_line2 %}
+                                            <p class="mb-1">{{ address.address_line2 }}</p>
+                                            {% endif %}
+                                            <p class="mb-1">{{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+                                            <p class="mb-3">Phone: {{ address.phone }}</p>
+
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAddressModal" data-address-id="{{ address.id }}">
+                                                    <i class="fas fa-edit me-1"></i> Edit
+                                                </button>
+                                                {% if not address.is_default %}
+                                                <form action="{% url 'accounts:set_default_address' address.id %}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                                        <i class="fas fa-check-circle me-1"></i> Set as Default
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                                {% if addresses.count > 1 %}
+                                                <form action="{% url 'accounts:delete_address' address.id %}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash-alt me-1"></i> Delete
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-4">
+                                    <i class="fas fa-map-marker-alt fa-5x text-muted"></i>
+                                </div>
+                                <h3 class="mb-3">No addresses saved</h3>
+                                <p class="text-muted mb-4">Add your shipping and billing addresses for a faster checkout experience.</p>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                    Add New Address
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Custom Designs Tab -->
+                        <div class="tab-pane fade" id="v-pills-custom-designs" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">My Custom Designs</h4>
+                                <a href="{% url 'custom_designs:form' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Create New Design
+                                </a>
+                            </div>
+
+                            {% if custom_designs %}
+                            <div class="custom-designs-list">
+                                {% for design in custom_designs %}
+                                <div class="card mb-3">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <span>Design #{{ design.id }} - {{ design.get_design_type_display_name }}</span>
+                                        <span class="badge {% if design.status == 'pending' %}bg-warning{% elif design.status == 'in-progress' %}bg-info{% elif design.status == 'done' %}bg-success{% elif design.status == 'rejected' %}bg-danger{%else%}bg-success{% endif %}">
+                                            {{ design.status }}
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                {% if design.reference_image %}
+                                                <img src="{{ design.reference_image.url }}" alt="Custom Design {{ design.id }}" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                                                {% else %}
+                                                <div class="bg-light text-center" style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-tshirt fa-3x text-muted"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-8">
+                                                <p class="mb-1"><strong>Fabric:</strong> {{ design.fabric_type }}</p>
+                                                {% comment %} <p class="mb-1"><strong>Color:</strong> {{ design.color }}</p> {% endcomment %}
+                                                <p class="mb-1"><strong>Embroidery:</strong> {{ design.embroidery|yesno:"Yes,No" }}</p>
+                                                <p class="mb-1"><strong>Quantity:</strong> {{ design.quantity }}</p>
+                                                <p class="mb-1"><strong>Budget:</strong> ₹{{ design.budget }}</p>
+                                                <p class="mb-1"><strong>Payment status:</strong> {{ design.payment_status }}</p>
+                                                {% comment %} <p class="mb-1"><strong>Color:</strong> {{ design.selected_color }}</p> {% endcomment %}
+                                              
+                                                <p class="mb-1"><strong>Timeline:</strong> {{ design.timeline }}</p>
+                                                <p class="mb-1"><strong>Created:</strong> {{ design.created_at|date:"d M Y" }}</p>
+                                                <div class="text-md-end mt-3">
+                                                    <a href="{% url 'custom_designs:details' design.id %}" class="btn btn-outline-primary">View Details</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-4">
+                                    <i class="fas fa-tshirt fa-5x text-muted"></i>
+                                </div>
+                                <h3 class="mb-3">No custom designs yet</h3>
+                                <p class="text-muted mb-4">Create your own unique designs with our custom design service.</p>
+                                <a href="{% url 'custom_designs:form' %}" class="btn btn-primary">
+                                    Create Your First Design
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Bulk Orders Tab -->
+                        <div class="tab-pane fade" id="v-pills-bulk-orders" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">My Bulk Orders</h4>
+                                <a href="{% url 'bulk_orders:form' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>New Bulk Order
+                                </a>
+                            </div>
+
+                            {% if bulk_orders %}
+                            <div class="bulk-orders-list">
+                                {% for order in bulk_orders %}
+                                <div class="card mb-3">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <span>Order #{{ order.id }} - {{ order.business_name }}</span>
+                                        <span class="badge {% if order.order_status == 'new' %}bg-warning{% elif order.order_status == 'reviewed' %}bg-info{% elif order.order_status == 'accepted' %}bg-primary{% elif order.order_status == 'completed' %}bg-success{% elif order.order_status == 'rejected' %}bg-danger{%else%}bg-success{% endif %}">
+                                            {{ order.status }}
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <p class="mb-1"><strong>Product Type:</strong> {{ order.product_type }}</p>
+                                                <p class="mb-1"><strong>Quantity:</strong> {{ order.quantity }}</p>
+                                                <p class="mb-1"><strong>Budget:</strong> ₹{{ order.budget }}</p>
+                                                <p class="mb-1"><strong>Timeline:</strong> {{ order.delivery_timeline }}</p>
+                                                <p class="mb-1"><strong>Created:</strong> {{ order.created_at|date:"d M Y" }}</p>
+                                            </div>
+                                            <div class="col-md-4 text-md-end">
+                                                <a href="{% url 'bulk_orders:details' order.id %}" class="btn btn-outline-primary">View Details</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-4">
+                                    <i class="fas fa-boxes fa-5x text-muted"></i>
+                                </div>
+                                <h3 class="mb-3">No bulk orders yet</h3>
+                                <p class="text-muted mb-4">Place bulk orders for your business needs and get wholesale prices.</p>
+                                <a href="{% url 'bulk_orders:form' %}" class="btn btn-primary">
+                                    Create Your First Bulk Order
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Settings Tab -->
+                        <div class="tab-pane fade" id="v-pills-settings" role="tabpanel">
+                            <h4 class="mb-4">Edit Profile</h4>
+                            <form action="{% url 'accounts:edit_profile' %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-4">
+                                    <label class="form-label">Profile Image</label>
+                                    <div class="d-flex align-items-center mb-3">
+                                        {% if user.profile_image %}
+                                        <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="rounded-circle me-3" width="60" height="60">
+                                        {% else %}
+                                        <div class="avatar-placeholder me-3" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <input type="file" class="form-control" name="profile_image" id="profileImage" accept="image/*">
+                                            <small class="form-text text-muted">Upload a new profile image (JPG, PNG, max 2MB)</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="first_name" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="last_name" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" readonly>
+                                    <small class="form-text text-muted">Email cannot be changed</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone }}">
+                                </div>
+
+                                <hr class="my-4">
+
+                                <h5 class="mb-3">Change Password</h5>
+                                <div class="mb-3">
+                                    <label for="current_password" class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" id="current_password" name="current_password">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="new_password" class="form-label">New Password</label>
+                                    <input type="password" class="form-control" id="new_password" name="new_password">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                                    <div class="invalid-feedback" id="password-match-error">Passwords do not match</div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'accounts:add_address' %}" method="post" id="addAddressForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="new_address_name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="new_address_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_address_phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="new_address_phone" name="phone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_address_line1" class="form-label">Address Line 1</label>
+                        <input type="text" class="form-control" id="new_address_line1" name="address_line1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_address_line2" class="form-label">Address Line 2 (Optional)</label>
+                        <input type="text" class="form-control" id="new_address_line2" name="address_line2">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="new_address_city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="new_address_city" name="city" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="new_address_state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="new_address_state" name="state" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_address_pincode" class="form-label">Pincode</label>
+                        <input type="text" class="form-control" id="new_address_pincode" name="pincode" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="new_address_default" name="is_default">
+                        <label class="form-check-label" for="new_address_default">Set as default address</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="addAddressForm">Save Address</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Address Modal -->
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'accounts:edit_address' 0 %}" method="post" id="editAddressForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="address_id" id="edit_address_id">
+                    <div class="mb-3">
+                        <label for="edit_address_name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="edit_address_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_address_phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="edit_address_phone" name="phone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_address_line1" class="form-label">Address Line 1</label>
+                        <input type="text" class="form-control" id="edit_address_line1" name="address_line1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_address_line2" class="form-label">Address Line 2 (Optional)</label>
+                        <input type="text" class="form-control" id="edit_address_line2" name="address_line2">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_address_city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="edit_address_city" name="city" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_address_state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="edit_address_state" name="state" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_address_pincode" class="form-label">Pincode</label>
+                        <input type="text" class="form-control" id="edit_address_pincode" name="pincode" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="edit_address_default" name="is_default">
+                        <label class="form-check-label" for="edit_address_default">Set as default address</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="editAddressForm">Update Address</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<div id="notification-area" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>
+
+{% block extra_js %}
+<script src="{% static 'js/main.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab persistence
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        let activeTab = tabParam || sessionStorage.getItem('activeTab') || 'overview';
+
+        const tabMap = {
+            'overview': 'v-pills-overview-tab',
+            'orders': 'v-pills-orders-tab',
+            'wishlist': 'v-pills-wishlist-tab',
+            'address': 'v-pills-address-tab',
+            'custom-designs': 'v-pills-custom-designs-tab',
+            'bulk-orders': 'v-pills-bulk-orders-tab',
+            'settings': 'v-pills-settings-tab'
+        };
+
+        if (tabMap[activeTab]) {
+            const tabButton = document.getElementById(tabMap[activeTab]);
+            if (tabButton) {
+                tabButton.click();
+            }
+        }
+
+        // Store active tab on click
+        document.querySelectorAll('#v-pills-tab .nav-link').forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.id.replace('-tab', '');
+                const tabName = Object.keys(tabMap).find(key => tabMap[key] === this.id);
+                if (tabName) {
+                    sessionStorage.setItem('activeTab', tabName);
+                }
+            });
+        });
+
+        // Tab navigation via buttons in cards
+        document.getElementById('edit-profile-btn')?.addEventListener('click', function() {
+            document.getElementById('v-pills-settings-tab').click();
+            sessionStorage.setItem('activeTab', 'settings');
+        });
+
+        document.getElementById('manage-addresses-btn')?.addEventListener('click', function() {
+            document.getElementById('v-pills-address-tab').click();
+            sessionStorage.setItem('activeTab', 'address');
+        });
+
+        document.getElementById('view-all-orders-btn')?.addEventListener('click', function() {
+            document.getElementById('v-pills-orders-tab').click();
+            sessionStorage.setItem('activeTab', 'orders');
+        });
+
+        document.getElementById('view-wishlist-btn')?.addEventListener('click', function() {
+            document.getElementById('v-pills-wishlist-tab').click();
+            sessionStorage.setItem('activeTab', 'wishlist');
+        });
+
+        // Password validation
+        const newPassword = document.getElementById('new_password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const passwordMatchError = document.getElementById('password-match-error');
+
+        function validatePassword() {
+            if (newPassword.value && confirmPassword.value) {
+                if (newPassword.value !== confirmPassword.value) {
+                    confirmPassword.classList.add('is-invalid');
+                    passwordMatchError.style.display = 'block';
+                    return false;
+                } else {
+                    confirmPassword.classList.remove('is-invalid');
+                    passwordMatchError.style.display = 'none';
+                    return true;
+                }
+            }
+            return true;
+        }
+
+        newPassword?.addEventListener('input', validatePassword);
+        confirmPassword?.addEventListener('input', validatePassword);
+
+        document.querySelector('form[action="{% url 'accounts:edit_profile' %}"]')?.addEventListener('submit', function(e) {
+            if (newPassword.value || confirmPassword.value) {
+                if (!validatePassword()) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // Edit address modal
+        const editAddressModal = document.getElementById('editAddressModal');
+        if (editAddressModal) {
+            editAddressModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const addressId = button.getAttribute('data-address-id');
+                document.getElementById('edit_address_id').value = addressId;
+                const form = document.getElementById('editAddressForm');
+                form.action = form.action.replace(/\d+$/, addressId);
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-pills .nav-link {
+        color: var(--dark-text);
+        border-radius: 0;
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .tab-content {
+        padding: 1.5rem 0;
+    }
+
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+    }
+
+    .wishlist-remove {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+
+    .btn-remove {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: white;
+        border: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-remove:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    input[type="file"] {
+        padding: 0.375rem 0.75rem;
+    }
+
+    #password-match-error {
+        display: none;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Bhavi India Fashion Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+
+        Bhavi India Fashion Admin
+    </a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+    :root {
+        --primary: #ff385c;
+        --primary-fg: #fff;
+    }
+
+    body {
+        font-family: 'Jost', sans-serif;
+    }
+
+    #header {
+        background: var(--primary);
+        color: var(--primary-fg);
+    }
+
+    #header a:link, #header a:visited {
+        color: var(--primary-fg);
+    }
+
+    .module h2, .module caption, .inline-group h2 {
+        background: var(--primary);
+    }
+
+    div.breadcrumbs {
+        background: #f8f8f8;
+        color: white;
+    }
+
+    div.breadcrumbs a {
+        color: var(--primary);
+    }
+
+    .selector-chosen h2 {
+        background: var(--primary) !important;
+    }
+
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: var(--primary);
+    }
+
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        background: #e62d53;
+    }
+
+    .button.default, input[type=submit].default, .submit-row input.default {
+        background: var(--primary);
+    }
+
+    .button.default:hover, input[type=submit].default:hover {
+        background: #e62d53;
+    }
+
+    .object-tools a:link, .object-tools a:visited {
+        background: var(--primary);
+    }
+
+    .object-tools a:hover {
+        background: #e62d53;
+    }
+
+    #changelist-filter h2 {
+        background: var(--primary);
+    }
+
+    #changelist-filter a:hover {
+        color: var(--primary);
+    }
+
+    .paginator a:link, .paginator a:visited {
+        background: var(--primary);
+    }
+
+    .paginator a:hover {
+        background: #e62d53;
+    }
+
+    .help-tooltip {
+        cursor: help;
+    }
+
+    a:link, a:visited {
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

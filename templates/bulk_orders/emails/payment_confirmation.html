@@ -1,0 +1,19 @@
+
+
+{% block content %}
+<h2>Payment Received for Your Bulk Order</h2>
+<p>Hello {{ user.username }},</p>
+
+<p>We've received your advance payment of ₹{{ bulk_order.advance_payment }} for Bulk Order #{{bulk_order.id }}.</p>
+
+<div style="background:#f8f9fa; padding:20px; border-radius:5px;">
+    <h3 style="margin-top:0;">bulk_order Details</h3>
+    <p><strong>Type:</strong> {{ bulk_order.get_bulk_order_type_display }}</p>
+    <p><strong>Total Amount:</strong> ₹{{ bulk_order.budget }}</p>
+    <p><strong>Advance Paid:</strong> ₹{{ bulk_order.advance_payment }}</p>
+</div>
+
+<p>Our tailors have started working on your Bulk order. We'll notify you when it's ready!</p>
+
+<p>View yourBulk Order status on your account profile.</p>
+{% endblock %}

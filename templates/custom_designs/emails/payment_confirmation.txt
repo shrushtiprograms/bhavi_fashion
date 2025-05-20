@@ -1,0 +1,16 @@
+Payment Received for Your Custom Design
+
+Hello {{ user.username }},
+
+We've received your advance payment of ₹{{ design.advance_payment }} for Design #{{ design.id }}.
+
+Design Details:
+- Type: {{ design.get_design_type_display }}
+- Fabric: {{ design.fabric_type }}
+- Color: {{ design.color.name }}
+- Total Amount: ₹{{ design.budget }}
+- Advance Paid: ₹{{ design.advance_payment }}
+
+Our tailors have started working on your custom design. We'll notify you when it's ready!
+
+View your design status: {{ site_url }}{% url 'custom_designs:details' design.id %}

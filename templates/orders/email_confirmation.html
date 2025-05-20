@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Confirmation</title>
+</head>
+<body>
+    <h1>Thank you for your order!</h1>
+    <p>Hello {{ user.first_name }},</p>
+    
+    <h2>Order Details</h2>
+    <p><strong>Order Number:</strong> #{{ order.order_number }}</p>
+    <p><strong>Date:</strong> {{ order.created_at|date:"F j, Y" }}</p>
+    <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+    
+    <h3>Items Ordered</h3>
+    <ul>
+        {% for item in order.items.all %}
+        <li>{{ item.product.name }} - ₹{{ item.price }} x {{ item.quantity }}</li>
+        {% endfor %}
+    </ul>
+    
+    <p>We'll process your order shortly. You can view your order details at any time by visiting your account.</p>
+    
+    <p>Thank you for shopping with Bhavi Fashion!</p>
+</body>
+</html>

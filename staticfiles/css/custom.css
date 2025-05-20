@@ -1,0 +1,37 @@
+/* Sidebar */
+.sidebar {
+    background-color: #080808 !important; /* Grey sidebar */
+}
+.sidebar a {
+    color: #ffffff !important;
+}
+.sidebar a:hover {
+    background-color: #5a6268 !important; /* Darker grey on hover */
+}
+.sidebar .nav-item.active {
+    background-color: #495057 !important; /* Active item */
+}
+
+/* Navbar */
+.navbar {
+    background-color: #ccd8e4 !important; /* Dark navbar */
+    border-bottom: 1px solid #ffffff !important; /* White line */
+}
+.navbar-brand, .navbar a {
+    color: #ffffff !important;
+}
+
+/* Content Background */
+.main-content {
+    background-color: #212529 !important; /* Dark background */
+    color: #ffffff !important;
+}
+
+/* Tables */
+.table {
+    background-color: #343a40 !important;
+    color: #ffffff !important;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #495057 !important;
+}

@@ -1,0 +1,40 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>Order #{{ order.id }} Status Update</h2>
+<p>Hello {{ user.username }},</p>
+
+<p>The status of your bulk order has been updated from <strong>{{ old_status }}</strong> to <strong>{{ bulk_order.get_status_display }}</strong>.</p>
+
+{% if bulk_order.status == 'accepted' %}
+<div class="alert alert-success">
+    <h3>Your order Has Been Accepted!</h3>
+    <p>We're excited to create your Bulk {{ bulk_order.get_order_type_display }}!</p>
+    
+    <p><strong>Next Steps:</strong></p>
+    <ol>
+        <li>Pay the 30% advance amount of ₹{{ bulk_order.get_advance_amount }} to confirm your order</li>
+        <li>Our tailors will begin working on your order</li>
+        <li>We'll notify you when your order is ready for delivery</li>
+    </ol>
+    
+    <a href="{{ site_url }}{% url 'bulk_orders:details' bulk_order.id %}" class="btn btn-primary">
+        View order & Make Payment
+    </a>
+</div>
+{% elif bulk_order.status == 'rejected' %}
+<div class="alert alert-warning">
+    <h3>order Modification Required</h3>
+    <p>Our order team has reviewed your request and found the following issue:</p>
+    <blockquote>{{ bulk_order.rejection_reason }}</blockquote>
+    
+    <p>Please submit a new order request with the suggested modifications.</p>
+    
+    <a href="{{ site_url }}{% url 'bulk_orders:form' %}" class="btn btn-primary">
+        Create New order
+    </a>
+</div>
+{% endif %}
+
+<p>You can view your order details at any time by visiting your <a href="{{ site_url }}{% url 'accounts:profile' %}">account dashboard</a>.</p>
+{% endblock %}

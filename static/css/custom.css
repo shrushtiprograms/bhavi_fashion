@@ -1,0 +1,37 @@
+/* Sidebar */
+.sidebar {
+    background-color: #2B343B !important; /* Deep Slate */
+}
+.sidebar a {
+    color: #EDEFF2 !important; /* Cloud White */
+}
+.sidebar a:hover {
+    background-color: #5C6B7A !important; /* Cool Gray Hover */
+}
+.sidebar .nav-item.active {
+    background-color: #4A5560 !important; /* Cool Gray Active */
+}
+
+/* Navbar */
+.navbar {
+    background-color: #A8B7C7 !important; /* Pale Blue */
+    border-bottom: 1px solid #EDEFF2 !important; /* Cloud White */
+}
+.navbar-brand, .navbar a {
+    color: #EDEFF2 !important; /* Cloud White */
+}
+
+/* Content Background */
+.main-content {
+    background-color: #1E2529 !important; /* Dark Mist */
+    color: #EDEFF2 !important; /* Cloud White */
+}
+
+/* Tables */
+.table {
+    background-color: #3B4651 !important; /* Steel Gray */
+    color: #EDEFF2 !important; /* Cloud White */
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #4A5560 !important; /* Cool Gray */
+}

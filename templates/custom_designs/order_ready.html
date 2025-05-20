@@ -1,0 +1,21 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>Your Custom Design is Ready!</h2>
+
+<p>Hello {{ user.username }},</p>
+
+<p>We're excited to let you know that your custom {{ design.get_design_type_display }} is now ready!</p>
+
+<div class="order-details">
+    <h3>Design #{{ design.id }}</h3>
+    <p><strong>Estimated Delivery Date:</strong> {{ estimated_delivery }}</p>
+    <p><strong>Shipping Address:</strong><br>{{ design.address|linebreaks }}</p>
+</div>
+
+<p>Your order will be shipped within 24 hours. You'll receive another email with tracking information.</p>
+
+<a href="{{ site_url }}{% url 'custom_designs:details' design.id %}" class="button">
+    View Order Details
+</a>
+{% endblock %}

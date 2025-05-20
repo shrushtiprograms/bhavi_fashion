@@ -1,0 +1,5 @@
+INFO 2025-05-20 14:43:18,845 autoreload Watching for file changes with StatReloader
+INFO 2025-05-20 14:44:21,175 autoreload Watching for file changes with StatReloader
+INFO 2025-05-20 14:45:32,888 autoreload Watching for file changes with StatReloader
+INFO 2025-05-20 14:45:44,986 autoreload D:\project\final_project\lastandfinal\forgithub\bhavi_fashion\orders\migrations\0005_remove_order_coupon_delete_cartitem_delete_coupon.py changed, reloading.
+INFO 2025-05-20 14:45:45,659 autoreload Watching for file changes with StatReloader

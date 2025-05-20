@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section: Single Image with Overlay -->
+<section class="py-5 text-center position-relative" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('{% static 'images/about-us.jpg' %}'); background-size: cover; background-position: center; color: white;">
+  <div class="container py-5">
+    <h1 class="display-4 fw-bold mb-3">Bhavi India Fashion</h1>
+    <p class="lead mb-4">Crafting Timeless Indian Elegance with Your Personal Touch</p>
+    <a href="{% url 'products:catalog' %}" class="btn btn-light btn-lg me-2">Explore Collections</a>
+    <a href="{% url 'custom_designs:form' %}" class="btn btn-outline-light btn-lg">Design Your Own</a>
+  </div>
+</section>
+
+<!-- Our Journey: Content-Focused -->
+<section class="container py-5">
+  <h2 class="fw-bold mb-4 text-dark">Our Journey</h2>
+  <p class="lead text-muted">From a humble beginning to a beacon of Indian craftsmanship</p>
+  <p>Established in 2003 in Ahmedabad, Bhavi India Fashion began with a single vision: to blend India’s rich textile heritage with modern customization. What started as a local tailoring unit has grown into a trusted digital platform, connecting customers with bespoke ethnic wear tailored to their preferences.</p>
+  <p>We identified a need—customers seeking unique, perfectly fitted garments and skilled artisans needing broader opportunities. Our platform serves as the bridge, ensuring quality and authenticity through a curated process, without direct customer-artisan interaction.</p>
+  <div class="mt-4">
+    <a href="{% url 'custom_designs:form' %}" class="btn btn-primary me-2">Create Your Design</a>
+    <a href="{% url 'tailor_jobs:form' %}" class="btn btn-outline-dark">Join Our Artisans</a>
+  </div>
+</section>
+
+<!-- Core Values: Text-Based Cards -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold text-dark">Our Core Values</h2>
+      <p class="text-muted lead">The foundation of every garment we create</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="p-4 bg-white shadow-sm text-center">
+          <h5 class="fw-semibold">Personalization</h5>
+          <p>Your style is unique. Our custom design service brings your vision to life with precision.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 bg-white shadow-sm text-center">
+          <h5 class="fw-semibold">Artisan Empowerment</h5>
+          <p>We support skilled artisans by connecting them with opportunities, preserving India’s craft heritage.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 bg-white shadow-sm text-center">
+          <h5 class="fw-semibold">Sustainability</h5>
+          <p>Made-withoutdirect customer-artisan interaction.to-order production minimizes waste, using premium fabrics for lasting elegance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Our Evolution: Text Timeline -->
+<section class="container py-5">
+  <h2 class="text-center fw-bold mb-5 text-dark">Our Evolution</h2>
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      <div class="list-group">
+        <div class="list-group-item">
+          <h5 class="fw-semibold">2003</h5>
+          <p>Founded in Ahmedabad, crafting custom ethnic wear for local customers.</p>
+        </div>
+        <div class="list-group-item">
+          <h5 class="fw-semibold">2010</h5>
+          <p>Grew to a team of 15 artisans, introducing bulk order capabilities.</p>
+        </div>
+        <div class="list-group-item">
+          <h5 class="fw-semibold">2015</h5>
+          <p>Embraced digital with email and WhatsApp order systems.</p>
+        </div>
+        <div class="list-group-item">
+          <h5 class="fw-semibold">2020</h5>
+          <p>Launched our e-commerce platform with custom design uploads.</p>
+        </div>
+        <div class="list-group-item">
+          <h5 class="fw-semibold">2023</h5>
+          <p>Expanded to 100+ artisans, serving customers globally.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us: Content-Driven -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5 text-dark">Why Choose Bhavi India Fashion?</h2>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="mb-4">
+          <h5 class="fw-semibold">True Customization</h5>
+          <p>Design your own garment or tweak existing patterns for a perfect match, tailored to your vision.</p>
+        </div>
+        <div class="mb-4">
+          <h5 class="fw-semibold">Perfect Fit Guarantee</h5>
+          <p>Our detailed measurement process ensures every piece fits flawlessly, every time.</p>
+        </div>
+        <div class="mb-4">
+          <h5 class="fw-semibold">Bulk Order Expertise</h5>
+          <p>Seamlessly handle large orders for events or retail with consistent quality and care.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Empowering Artisans: Content-Focused -->
+<section class="container py-5">
+  <h2 class="fw-bold mb-4 text-dark">Empowering Artisans</h2>
+  <p class="text-muted">At Bhavi India Fashion, our network of over 100 skilled artisans across India is the backbone of our brand. Each artisan is carefully vetted for their expertise, and our platform assigns orders based on their specialty, ensuring top-quality results without direct customer interaction.</p>
+  <p>We are committed to preserving India’s textile heritage by providing fair opportunities and sustainable livelihoods, all managed through our trusted process.</p>
+  <a href="{% url 'tailor_jobs:form' %}" class="btn btn-outline-primary mt-3">Join Our Artisan Network</a>
+</section>
+
+
+
+<!-- CTA: Clean and Inviting -->
+<section class="py-5 text-center bg-light">
+  <div class="container">
+    <h2 class="fw-bold mb-4 text-dark">Craft Your Signature Style Today</h2>
+    <p class="lead mb-4">Discover our curated collections or design a garment that’s uniquely yours.</p>
+    <a href="{% url 'products:catalog' %}" class="btn btn-primary me-2">Shop Collections</a>
+    <a href="{% url 'custom_designs:form' %}" class="btn btn-outline-primary">Start Designing</a>
+  </div>
+</section>
+
+<!-- CSS for Minimalist Styling -->
+<style>
+/* General Styling */
+.lead { font-size: 1.25rem; }
+.bg-light { background-color: #f8f9fa; }
+.shadow-sm { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.list-group-item { border: none; padding: 1.5rem; background: #fff; }
+.list-group-item + .list-group-item { border-top: 1px solid #eee; }
+.btn:hover { transform: scale(1.05); transition: transform 0.3s ease; }
+</style>
+{% endblock %}

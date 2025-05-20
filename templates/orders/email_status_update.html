@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Order Status Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; background-color: #F7F9FB; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #4A90E2 0%, #D81B60 100%); color: #FFFFFF; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .item { border-bottom: 1px solid #EEE; padding: 10px 0; }
+        .item:last-child { border-bottom: none; }
+        .status { color: #28A745; font-weight: bold; }
+        .btn { display: inline-block; padding: 10px 20px; background-color: #4A90E2; color: #FFFFFF; text-decoration: none; border-radius: 25px; margin-top: 20px; }
+        .btn:hover { background-color: #357ABD; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #6C757D; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Order #{{ order.order_number }} Update</h2>
+        </div>
+        <div class="content">
+            <p>Dear {{ user.get_full_name|default:user.username }},</p>
+            <p>Your order status has been updated to <span class="status">{{ order.get_order_status_display }}</span>.</p>
+            {% if order.tracking_number and order.carrier %}
+                <p><strong>Tracking Number:</strong> <a href="https://www.{{ order.carrier|lower }}.com/track/{{ order.tracking_number }}">{{ order.tracking_number }}</a></p>
+            {% endif %}
+            {% if order.estimated_delivery %}
+                <p><strong>Estimated Delivery:</strong> {{ order.estimated_delivery|date:"F j, Y" }}</p>
+            {% endif %}
+            <h3>Order Details</h3>
+            {% for item in order.items.all %}
+                <div class="item">
+                    <p><strong>{{ item.product.name }}</strong></p>
+                    <p>Quantity: {{ item.quantity }}</p>
+                    {% if item.variant %}
+                        <p>Size: {{ item.variant.size }}, Color: {{ item.variant.color }}</p>
+                    {% endif %}
+                    <p>Price: ₹{{ item.price|floatformat:2 }}</p>
+                </div>
+            {% endfor %}
+            <a href="{% url 'orders:track_order' %}" class="btn">Track Your Order</a>
+        </div>
+        <div class="footer">
+            <p>Thank you for shopping with Bhavi Fashion!</p>
+            <p>Contact us at support@bhavifashion.com</p>
+        </div>
+    </div>
+</body>
+</html>

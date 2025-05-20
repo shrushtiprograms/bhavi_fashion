@@ -1,0 +1,14 @@
+Payment Received for Your Custom bulk_order
+
+Hello {{ user.username }},
+
+We've received your advance payment of ₹{{ bulk_order.advance_payment }} for Bulk Order #{{ bulk_order.id }}.
+
+Bul Order Details:
+- Type: {{ bulk_order.get_bulk_order_type_display }}
+- Total Amount: ₹{{ bulk_order.budget }}
+- Advance Paid: ₹{{ bulk_order.advance_payment }}
+
+Our tailors have started working on your Bulk Order. We'll notify you when it's ready!
+
+View your bulk_order status: {{ site_url }}{% url 'bulk_orders:details' bulk_order.id %}

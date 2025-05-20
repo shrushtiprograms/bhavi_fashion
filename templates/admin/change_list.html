@@ -1,0 +1,71 @@
+<!-- \templates\admin\change_list.html -->
+
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static %}
+{% load admin_extras %}
+{% block result_list %}
+<style>
+    .table-dark {
+        color: #fff !important;
+    }
+    .table-dark a {
+        color: #4e9fef !important;
+    }
+</style>
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                {% for header in cl.list_display %}
+                    <th scope="col">
+                        {% if header == 'order_number' %}Order #
+                        {% elif header == 'total_items' %}Total Items
+                        {% elif header == 'discount_price' %}Discount Price
+                        {% elif header == 'is_primary' %}Primary
+                        {% elif header == 'is_featured' %}Featured
+                        {% elif header == 'is_active' %}Active
+                        {% elif header == 'current_uses' %}Uses
+                        {% elif header == 'product_count' %}Products
+                        {% else %}{{ header|capfirst }}{% endif %}
+                    </th>
+                {% endfor %}
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in cl.result_list %}
+            <tr>
+                {% for field_name in cl.list_display %}
+                <td>
+                    {% if field_name == "__str__" %}
+                        {{ obj }}
+                    {% else %}
+                        {% with value=obj|get_attribute:field_name %}
+                            {% if value is True %}
+                                <span class="text-success">✓</span>
+                            {% elif value is False %}
+                                <span class="text-danger">✗</span>
+                            {% elif value is None %}
+                                -
+                            {% else %}
+                                <span class="text-light">{{ value }}</span>
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                </td>
+                {% endfor %}
+                <td>
+                    <a href="{% url opts|admin_urlname:'change' obj.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form action="{% url opts|admin_urlname:'delete' obj.pk %}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this {{ cl.opts.model_name }}?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{{ cl.list_display|length|add:1 }}" class="text-center">No item found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

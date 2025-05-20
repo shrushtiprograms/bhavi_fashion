@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>Search Results for "{{ query }}"</h2>
+    
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-img-container">
+                    {% with first_image=product.images.all|first %}
+                        {% if first_image %}
+                            <img src="{{ first_image.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 300px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'images/product-placeholder.jpg' %}" class="card-img-top" alt="{{ product.name }}" style="height: 300px; object-fit: cover;">
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">₹{{ product.price }}</p>
+                    <a href="{% url 'products:detail' product.id %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>No products found matching your search.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

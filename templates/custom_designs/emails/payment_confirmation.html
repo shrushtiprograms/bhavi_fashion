@@ -1,0 +1,20 @@
+
+
+{% block content %}
+<h2>Payment Received for Your Custom Design</h2>
+<p>Hello {{ user.username }},</p>
+
+<p>We've received your advance payment of ₹{{ design.advance_payment }} for Design #{{ design.id }}.</p>
+
+<div style="background:#f8f9fa; padding:20px; border-radius:5px;">
+    <h3 style="margin-top:0;">Design Details</h3>
+    <p><strong>Type:</strong> {{ design.get_design_type_display }}</p>
+    <p><strong>Fabric:</strong> {{ design.fabric_type }}</p>
+    <p><strong>Total Amount:</strong> ₹{{ design.budget }}</p>
+    <p><strong>Advance Paid:</strong> ₹{{ design.advance_payment }}</p>
+</div>
+
+<p>Our tailors have started working on your custom design. We'll notify you when it's ready!</p>
+
+<p>View your design status: <a href="{{ site_url }}{% url 'custom_designs:details' design.id %}">Design #{{ design.id }}</a></p>
+{% endblock %}

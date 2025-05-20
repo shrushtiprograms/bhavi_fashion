@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Track Your Order - Bhavi Fashion{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tracking-container {
+        background-color: #F7F9FB;
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+    .tracking-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        background-color: #FFFFFF;
+    }
+    .tracking-header {
+        background: linear-gradient(135deg, #4A90E2 0%, #D81B60 100%);
+        color: #FFFFFF;
+        padding: 20px;
+        text-align: center;
+        border-radius: 12px 12px 0 0;
+    }
+    .tracking-header h2 {
+        font-size: 2rem;
+        margin: 0;
+        font-weight: 700;
+    }
+    .tracking-form-section {
+        padding: 30px;
+    }
+    .tracking-details {
+        padding: 30px;
+        background-color: #F7F9FB;
+    }
+    .order-item-card {
+        border: 1px solid #E9ECEF;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        background-color: #FFFFFF;
+        transition: transform 0.2s;
+    }
+    .order-item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .order-item-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 20px;
+    }
+    .order-item-details h6 {
+        color: #4A90E2;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    .order-item-details p {
+        color: #6C757D;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    .status-timeline {
+        margin-top: 20px;
+    }
+    .status-step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .status-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 15px;
+        background-color: #E0E0E0;
+    }
+    .status-dot.active {
+        background-color: #28A745;
+    }
+    .status-label {
+        font-size: 1rem;
+        color: #6C757D;
+    }
+    .status-label.active {
+        color: #4A90E2;
+        font-weight: 600;
+    }
+    .error-message {
+        color: #D81B60;
+        font-weight: 500;
+        text-align: center;
+    }
+    .btn-continue {
+        background-color: #4A90E2;
+        border: none;
+        padding: 12px 30px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 25px;
+        transition: background-color 0.3s;
+    }
+    .btn-continue:hover {
+        background-color: #357ABD;
+    }
+    @media (max-width: 576px) {
+        .order-item-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .order-item-image {
+            margin-bottom: 15px;
+            margin-right: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tracking-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="tracking-card">
+                    <div class="tracking-header">
+                        <h2>Track Your Order</h2>
+                        <p style="color: rgba(255, 255, 255, 0.9);">Enter your order number and email to check the status.</p>
+                    </div>
+                    <div class="tracking-form-section">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="order_number" class="form-label">Order Number *</label>
+                                <input type="text" class="form-control" id="order_number" name="order_number" required placeholder="e.g., ORD241000001">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address *</label>
+                                <input type="email" class="form-control" id="email" name="email" required placeholder="your@email.com">
+                            </div>
+                            <button type="submit" class="btn btn-continue w-100">Track Order</button>
+                        </form>
+                        {% if error %}
+                            <p class="error-message mt-3">{{ error }}</p>
+                        {% endif %}
+                    </div>
+                    {% if order %}
+                        <div class="tracking-details">
+                            <h4>Order #{{ order.order_number }}</h4>
+                            <p><strong>Status:</strong> <span class="badge bg-success">{{ order.get_order_status_display }}</span></p>
+                            <p><strong>Placed On:</strong> {{ order.created_at|date:"F j, Y" }}</p>
+                            {% if order.estimated_delivery %}
+                                <p><strong>Estimated Delivery:</strong> {{ order.estimated_delivery|date:"F j, Y" }}</p>
+                            {% endif %}
+                            {% if order.tracking_number and order.carrier %}
+                                <p><strong>Tracking Number:</strong> 
+                                    <a href="https://www.{{ order.carrier|lower }}.com/track/{{ order.tracking_number }}" target="_blank">{{ order.tracking_number }}</a>
+                                </p>
+                            {% endif %}
+                            <h5>Items</h5>
+                            {% for item in order.items.all %}
+                                <div class="order-item-card">
+                                    {% if item.product.primary_image %}
+                                        <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="order-item-image">
+                                    {% elif item.product.images.first %}
+                                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="order-item-image">
+                                    {% else %}
+                                        <img src="{% static 'images/product-placeholder.jpg' %}" alt="{{ item.product.name }}" class="order-item-image">
+                                    {% endif %}
+                                    <div class="order-item-details">
+                                        <h6>{{ item.product.name }}</h6>
+                                        <p>Quantity: {{ item.quantity }}</p>
+                                        {% if item.variant %}
+                                            <p>Size: {{ item.variant.size }}, Color: {{ item.variant.color }}</p>
+                                        {% elif item.custom_color %}
+                                            <p>Color: {{ item.custom_color.name }} <span style="display: inline-block; width: 20px; height: 20px; background-color: {{ item.custom_color.hex }}; border: 1px solid #ddd; vertical-align: middle;"></span></p>
+                                        {% endif %}
+                                        <p>Price: ₹{{ item.price|floatformat:2 }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="status-timeline">
+                                <h5>Order Progress</h5>
+                                {% for status, label in order.ORDER_STATUS_CHOICES %}
+                                    {% if status in 'pending,confirmed,processing,shipped,out_for_delivery,delivered' %}
+                                        <div class="status-step">
+                                            <div class="status-dot {% if order.order_status == status %}active{% endif %}"></div>
+                                            <span class="status-label {% if order.order_status == status %}active{% endif %}">{{ label }}</span>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="text-center mt-4">
+                                <a href="{% url 'products:catalog' %}" class="btn btn-continue">
+                                    <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

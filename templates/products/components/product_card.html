@@ -1,0 +1,161 @@
+<!-- templates/products/components/product_card.html -->
+{% load static %}
+
+<div class="card product-card h-100">
+    <div class="product-image-wrapper position-relative">
+        {% if product.primary_image %}
+            <a href="{% url 'products:detail' product.id %}">
+                <img src="{{ product.primary_image.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            </a>
+        {% else %}
+            <a href="{% url 'products:detail' product.id %}">
+                <img src="{% static 'images/product-placeholder.jpg' %}" class="card-img-top" alt="{{ product.name }}">
+            </a>
+        {% endif %}
+
+        {% if product.discount_price %}
+            <div class="discount-badge">
+                {{ product.discount_percentage|floatformat:0 }}% OFF
+            </div>
+        {% endif %}
+
+        <div class="product-actions">
+            {% if user.is_authenticated %}
+            <button class="wishlist-btn" data-product-id="{{ product.id }}" data-in-wishlist="{% if is_in_wishlist %}true{% else %}false{% endif %}" title="Toggle Wishlist">
+                <i class="fa{% if is_in_wishlist %}s text-danger{% else %}r{% endif %} fa-heart"></i>
+            </button>
+            {% else %}
+            <a href="#" class="wishlist-btn" data-bs-toggle="modal" data-bs-target="#loginModal" title="Add to Wishlist">
+                <i class="far fa-heart"></i>
+            </a>
+            {% endif %}
+            <a href="{% url 'products:detail' product.id %}" class="quick-view">
+                <i class="fas fa-eye"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <h5 class="card-title">{{ product.name }}</h5>
+        {% if product.discount_price %}
+        <span class="text-muted me-2 text-decoration-line-through">₹{{ product.price }}</span>
+        <span class="card-text fw-bold">₹{{ product.discount_price }}</span>
+        {% else %}
+        <span class="card-text fw-bold">₹{{ product.price }}</span>
+        {% endif %}
+       
+        <div class="product-rating mt-2">
+            {% with avg_rating=product.avg_rating %}
+                {% for i in "12345" %}
+                    <i class="fa{% if i|add:0 <= avg_rating|add:0 %}s{% else %}r{% endif %} fa-star {% if i|add:0 <= avg_rating|add:0.5 %}text-warning{% else %}text-warning{% endif %}"></i>
+                {% endfor %}
+                {% if avg_rating > 0 %}
+                    <span class="ms-2 text-muted"></span>
+                {% else %}
+                    
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <p  style="margin-top:50px; ">
+        {% if user.is_authenticated %}
+            {% if product.id in user_cart_product_ids %}
+                <!-- Product is already in cart -->
+                <a href="{% url 'orders:cart' %}" class="btn btn-primary flex-grow-1 add-to-cart-btn" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}">
+                    <i class="fas fa-shopping-cart me-2"></i>Go to Cart
+                </a>
+            {% else %}
+                <!-- Product is not in cart -->
+                <form action="{% url 'orders:add_to_cart' product.id %}" method="post" class="d-flex mb-4 add-to-cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-primary flex-grow-1 add-to-cart-btn" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" {% if not product.is_in_stock %}disabled{% endif %}>
+                        <i class="fas fa-shopping-cart me-2"></i>{% if product.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+                    </button>
+                </form>
+            {% endif %}
+            </p>
+        {% else %}
+            <!-- Non-authenticated user -->
+            <a href="#" class="btn btn-primary flex-grow-1 add-to-cart-btn" data-bs-toggle="modal" data-bs-target="#loginModal" title="Add to Cart">
+                <i class="fas fa-shopping-cart me-2"></i>{% if product.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+{%block extrajs%}
+<script>
+   
+
+        $('.add-to-cart-form').on('submit', function(e) {
+            e.preventDefault();
+            const $form = $(this);
+            const $button = $form.find('.add-to-cart-btn');
+            const productName = $button.attr('data-product-name') || 'Product';
+            const productId = $button.attr('data-product-id');
+            const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+            const isDisabled = $button.prop('disabled');
+            const quantity = parseInt($form.find('.quantity-input').val() || $form.find('input[name="quantity"]').val() || 1);
+    
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+    
+            if (isDisabled) {
+                showNotification(`${productName} is out of stock`, 'danger');
+                return;
+            }
+    
+            $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status"></span>Loading...');
+    
+            $.ajax({
+                url: $form.attr('action'),
+                method: 'POST',
+                data: $form.serialize(),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    if (data.success) {
+                        showNotification(data.message, data.already_in_cart ? 'info' : 'success');
+                        if (data.already_in_cart) {
+                            // Product already in cart, show "Go to Cart"
+                            $form.replaceWith(`
+                                <a href="{% url 'orders:cart' %}" class="btn btn-primary flex-grow-1 add-to-cart-btn"  style=" text-align:center;" data-product-id="${productId}" data-product-name="${productName}">
+                                    <i class="fas fa-shopping-cart me-2"></i>Go to Cart
+                                </a>
+                            `);
+                        } else {
+                            // Product added to cart, update button and cart count
+                            $form.replaceWith(`
+                                <a href="{% url 'orders:cart' %}" class="btn btn-primary flex-grow-1 add-to-cart-btn"  style="text-align:center;" data-product-id="${productId}" data-product-name="${productName}">
+                                    <i class="fas fa-shopping-cart me-2"></i>Go to Cart
+                                </a>
+                            `);
+                            const $cartCount = $('.cart-count');
+                            if ($cartCount.length) {
+                                $cartCount.text(parseInt($cartCount.text()) + 1);
+                            }
+                        }
+                    } else {
+                        showNotification(data.message || 'Failed to add to cart', 'danger');
+                        $button.prop('disabled', false).html('<i class="fas fa-shopping-cart me-2"></i>Add to Cart');
+                    }
+                },
+                error: function(xhr) {
+                    showNotification('Error: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'), 'danger');
+                    $button.prop('disabled', false).html('<i class="fas fa sodium la-shopping-cart me-2"></i>Add to Cart');
+                }
+            });
+        });
+
+        {% for message in messages %}
+            showNotification("{{ message|escapejs }}", "{{ message.tags }}");
+        {% endfor %}
+    });
+    </script>
+{% endblock %}
+

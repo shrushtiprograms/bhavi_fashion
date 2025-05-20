@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Custom Design Details - Bhavi India Fashion{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Full-screen loader overlay -->
+    <div id="pageLoader" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.7); z-index: 9999;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <img src="{% static 'images/loading.gif' %}?v={% now 'U' %}" alt="Loading..." style="width: 60px; height: 60px;" onerror="console.error('Failed to load spinner');">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">Custom Design #{{ design.id }}</h3>
+                        <span class="btn btn-sm btn-{% if design.status == 'pending' %}warning
+                                              {% elif design.status == 'accepted' %}success
+                                              {% elif design.status == 'rejected' %}danger
+                                              {% elif design.status == 'in_progress' %}info
+                                              {% elif design.status == 'completed' %}primary
+                                              {% else %}secondary{% endif %} disabled">
+                            {{ design.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Status Alerts -->
+                    {% if design.status == 'rejected' %}
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading"><i class="fas fa-times-circle me-2"></i>Design Rejected</h4>
+                        <p><strong>Reason:</strong> {{ design.rejection_reason }}</p>
+                        <hr>
+                        <p class="mb-0">
+                            <a href="{% url 'custom_designs:form' %}" class="alert-link">
+                                Submit a new design with modifications
+                            </a>
+                        </p>
+                    </div>
+                    {% elif design.status == 'accepted' %}
+                    <div class="alert alert-success">
+                        <h4 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Design Accepted!</h4>
+                        <p>Your design has been approved by our team.</p>
+                        <p><strong>Estimated Delivery:</strong> {{ design.timeline }}</p>
+                        <p><strong>Final Budget:</strong> ₹{{ design.budget }}</p>
+                        <p><strong>Advance Required (30%):</strong> ₹{{ design.get_advance_amount }}</p>
+                        <hr>
+                        {% if design.payment_status == 'pending' %}
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                            <i class="fas fa-credit-card me-2"></i>Pay Advance Now
+                        </button>
+                        {% else %}
+                        <p class="text-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            {% if design.payment_status == 'partial' %}
+                                Advance payment of ₹{{ design.advance_payment }} received.
+                            {% else %}
+                                Full payment received.
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Design Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">Personal Information</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <strong>Name:</strong> {{ design.name }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Contact:</strong> {{ design.contact }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Address:</strong> {{ design.address|linebreaks }}
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">Design Information</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <strong>Type:</strong> {{ design.get_design_type_display }}
+                                    {% if design.other_design_type %}
+                                        ({{ design.other_design_type }})
+                                    {% endif %}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Fabric:</strong> {{ design.fabric_type }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Color:</strong>
+                                    <span style="background-color: {{ design.get_color_hex }}; width: 20px; height: 20px; display: inline-block;"></span>
+                                    {{ design.get_color_display }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Embroidery:</strong> {% if design.embroidery %}Yes{% else %}No{% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Size and Order Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-3">Size Information</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Measurement Mode:</strong></span>
+                                    <span>{{ design.get_measurement_mode_display }}</span>
+                                </li>
+                                {% if design.measurement_mode == 'static' %}
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span><strong>Standard Size:</strong></span>
+                                        <span>{{ design.standard_size }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="list-group-item">
+                                        <div><strong>Custom Measurements:</strong></div>
+                                        <div class="mt-2">
+                                            {% for name, value in design.custom_measurements.items %}
+                                                {% if value %}
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>{{ name|cut:"_ "|title }}:</span>
+                                                        <span>
+                                                            {% if name == 'other' %}
+                                                                {{ value }}
+                                                            {% else %}
+                                                                {{ value }} inches
+                                                            {% endif %}
+                                                        </span>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-3">Order Details</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Quantity:</strong></span>
+                                    <span>{{ design.quantity }} piece(s)</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Timeline:</strong></span>
+                                    <span>{{ design.timeline }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Budget:</strong></span>
+                                    <span>₹{{ design.budget }}</span>
+                                </li>
+                                {% if design.payment_status != 'pending' %}
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span><strong>Payment Status:</strong></span>
+                                    <span class="text-{% if design.payment_status == 'paid' %}success{% else %}info{% endif %}">
+                                        {{ design.get_payment_status_display }}
+                                    </span>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    {% if design.reference_image and design.reference_image.url %}
+                    <div class="mb-4">
+                        <h5 class="card-title mb-3">Reference Image</h5>
+                        <div class="text-center">
+                            <img src="{{ design.reference_image.url }}" alt="Reference Design" class="img-fluid rounded" style="max-height: 300px;">
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if design.notes %}
+                    <div class="mb-4">
+                        <h5 class="card-title mb-3">Additional Notes</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ design.notes|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <h5 class="card-title mb-3">Design Timeline</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Request Submitted:</strong></span>
+                                <span>{{ design.created_at|date:"F d, Y" }}</span>
+                            </li>
+                            {% if design.accepted_at %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Approved On:</strong></span>
+                                <span>{{ design.accepted_at|date:"F d, Y" }}</span>
+                            </li>
+                            {% endif %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Last Updated:</strong></span>
+                                <span>{{ design.updated_at|date:"F d, Y" }}</span>
+                            </li>
+                            {% if design.estimated_delivery %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Estimated Delivery:</strong></span>
+                                <span>{{ design.estimated_delivery|date:"F d, Y" }}</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Confirm Order & Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Custom designs require a 30% advance payment to confirm your order.
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Order Summary</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Design ID</th>
+                            <td>#{{ design.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Total Amount</th>
+                            <td>₹{{ design.budget }}</td>
+                        </tr>
+                        <tr>
+                            <th>Advance (30%)</th>
+                            <td class="fw-bold">₹{{ design.get_advance_amount }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                    <label class="form-check-label" for="agreeTerms">
+                        I understand that custom designs are non-refundable once payment is made
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="rzp-button" class="btn btn-primary">
+                    Proceed to Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+// Show page loader
+function showPageLoader() {
+    document.getElementById('pageLoader').classList.remove('d-none');
+}
+
+// Hide page loader
+function hidePageLoader() {
+    document.getElementById('pageLoader').classList.add('d-none');
+}
+
+document.getElementById('rzp-button').onclick = function(e) {
+    if (!document.getElementById('agreeTerms').checked) {
+        alert('Please agree to the terms before proceeding');
+        return;
+    }
+
+    // Disable button to prevent multiple clicks
+    document.getElementById('rzp-button').disabled = true;
+
+    fetch("{% url 'custom_designs:initiate_payment' design.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ design_id: {{ design.id }} })
+    })
+    .then(response => {
+        console.log('Response status:', response.status, 'OK:', response.ok);
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP error! Status: ${response.status}, Response: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Payment response:', data);
+        if (data.error) {
+            alert('Payment error: ' + data.error);
+            document.getElementById('rzp-button').disabled = false;
+            return;
+        }
+
+        if (!data.razorpay_key_id || !data.razorpay_order_id || !data.amount || data.amount < 100) {
+            alert('Invalid payment data from server');
+            console.error('Invalid data:', data);
+            document.getElementById('rzp-button').disabled = false;
+            return;
+        }
+
+        var options = {
+            "key": data.razorpay_key_id,
+            "amount": data.amount,
+            "currency": "INR",
+            "name": "Bhavi India Fashion",
+            "description": "Advance Payment for Design #{{ design.id }}",
+            "order_id": data.razorpay_order_id,
+            "handler": function(response) {
+                console.log('Payment successful:', response);
+                if (response.razorpay_payment_id && response.razorpay_order_id && response.razorpay_signature) {
+                    // Close modal
+                    var paymentModal = document.getElementById('paymentModal');
+                    var bootstrapModal = bootstrap.Modal.getInstance(paymentModal);
+                    if (bootstrapModal) {
+                        bootstrapModal.hide();
+                    }
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style = '';
+
+                    // Show page loader
+                    showPageLoader();
+
+                    // Send payment confirmation to server
+                    fetch("{% url 'custom_designs:payment_success' design.id %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    })
+                    .then(res => {
+                        console.log('Payment success response:', res.status, res.ok);
+                        // Delay for UX (2 seconds) before reloading
+                        setTimeout(() => {
+                            hidePageLoader();
+                            window.location.assign("{% url 'custom_designs:details' design.id %}");
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Payment confirmation error:', err);
+                        // Proceed with reload even if server confirmation fails
+                        setTimeout(() => {
+                            hidePageLoader();
+                            window.location.assign("{% url 'custom_designs:details' design.id %}");
+                        }, 2000);
+                    });
+                } else {
+                    alert('Incomplete payment response');
+                    console.error('Incomplete response:', response);
+                    document.getElementById('rzp-button').disabled = false;
+                    hidePageLoader();
+                }
+            },
+            "prefill": {
+                "name": "{{ design.name }}",
+                "email": "{{ request.user.email }}",
+                "contact": "{{ design.contact }}"
+            },
+            "theme": {
+                "color": "#F37254"
+            }
+        };
+
+        var rzp = new Razorpay(options);
+        rzp.on('payment.failed', function(response) {
+            console.error('Payment failed:', response);
+            var errorMsg = response.error && response.error.description 
+                ? `${response.error.code}: ${response.error.description}`
+                : 'Unknown payment error';
+            alert('Payment failed: ' + errorMsg);
+            document.getElementById('rzp-button').disabled = false;
+        });
+        rzp.open();
+        e.preventDefault();
+    })
+    .catch(error => {
+        console.error('Payment initiation error:', error);
+        alert('Error initiating payment: ' + error.message);
+        document.getElementById('rzp-button').disabled = false;
+    });
+};
+</script>
+{% endblock %}

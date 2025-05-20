@@ -1,0 +1,23 @@
+{% extends "email/base.html" %}
+
+{% block content %}
+<h2>Your Bulk Order Has Been Submitted</h2>
+<p>Hello {{ user.username }},</p>
+
+<p>Thank you for submitting your custom design request (ID: #{{ bulk_order.id }}). Here are the details:</p>
+
+<div class="card">
+    <div class="card-body">
+        <h5>{{ bulk_order.get_design_type_display }}</h5>
+        <p><strong>Fabric:</strong> {{ order:design_type }}</p>
+        <p><strong>Budget:</strong> ₹{{ bulk_order.budget }}</p>
+        <p><strong>Timeline:</strong> {{ bulk_bulk_order.timeline }}</p>
+    </div>
+</div>
+
+<p>We can Contact for any further details please be avail.</p>
+
+<p>You can view your order status at any time by visiting your <a href="{{ site_url }}{% url 'accounts:profile' %}">account dashboard</a>.</p>
+
+<p>Thank you for choosing Bhavi India Fashion!</p>
+{% endblock %}

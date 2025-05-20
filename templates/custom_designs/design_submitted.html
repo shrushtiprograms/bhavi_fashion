@@ -1,0 +1,27 @@
+{% extends "email/base.html" %}
+
+{% block content %}
+<h2>Your Custom Design Has Been Submitted</h2>
+<p>Hello {{ user.username }},</p>
+
+<p>Thank you for submitting your custom design request (ID: #{{ design.id }}). Here are the details:</p>
+
+<div class="card">
+    <div class="card-body">
+        <h5>{{ design.get_design_type_display }}</h5>
+        <p><strong>Fabric:</strong> {{ design.fabric_type }}</p>
+        <p><strong>Color:</strong> 
+            <span style="display: inline-block; width: 16px; height: 16px; background-color: {{ design.get_color_hex }}; border: 1px solid #ddd;"></span>
+            {{ design.get_color_display }}
+        </p>
+        <p><strong>Budget:</strong> ₹{{ design.budget }}</p>
+        <p><strong>Timeline:</strong> {{ design.timeline }}</p>
+    </div>
+</div>
+
+<p>Our design team will review your request and get back to you within 48 hours.</p>
+
+<p>You can view your design status at any time by visiting your <a href="{{ site_url }}{% url 'accounts:profile' %}">account dashboard</a>.</p>
+
+<p>Thank you for choosing Bhavi India Fashion!</p>
+{% endblock %}

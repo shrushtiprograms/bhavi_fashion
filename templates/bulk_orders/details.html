@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bulk Order Details - Bhavi India Fashion{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'accounts:bulk_orders' %}">My Bulk Orders</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Order #{{ bulk_order.id }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Bulk Order #{{ bulk_order.id }}</h3>
+                    <span class="badge {% if bulk_order.status == 'new' %}bg-warning{% elif bulk_order.status == 'reviewed' %}bg-info{% elif bulk_order.status == 'accepted' %}bg-primary{% elif bulk_order.status == 'completed' %}bg-success{% elif bulk_order.status == 'rejected' %}bg-danger{% endif %}">
+                        {{ bulk_order.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <h5 class="border-bottom pb-2 mb-4">Business Information</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Business Name:</strong> {{ bulk_order.business_name }}</p>
+                            <p><strong>Contact Person:</strong> {{ bulk_order.contact_person }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Contact Number:</strong> {{ bulk_order.contact }}</p>
+                            <p><strong>Email:</strong> {{ bulk_order.email }}</p>
+                        </div>
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2 mb-4">Order Details</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Product Type:</strong> {{ bulk_order.product_type }}</p>
+                            <p><strong>Quantity:</strong> {{ bulk_order.quantity }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Budget:</strong> ₹{{ bulk_order.budget }}</p>
+                            <p><strong>Delivery Timeline:</strong> {{ bulk_order.delivery_timeline }}</p>
+                        </div>
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2 mb-4">Shipping Address</h5>
+                    <p>{{ bulk_order.shipping_address|linebreaks }}</p>
+                    
+                    {% if bulk_order.notes %}
+                    <h5 class="border-bottom pb-2 mb-4">Additional Requirements</h5>
+                    <p>{{ bulk_order.notes|linebreaks }}</p>
+                    {% endif %}
+                    
+                    <h5 class="border-bottom pb-2 mb-4">Order Status</h5>
+                    <div class="mb-4">
+                        <p><strong>Submitted On:</strong> {{ bulk_order.created_at|date:"F j, Y, g:i a" }}</p>
+                        <p><strong>Last Updated:</strong> {{ bulk_order.updated_at|date:"F j, Y, g:i a" }}</p>
+                        <p><strong>Current Status:</strong> 
+                            <span class="badge {% if bulk_order.status == 'new' %}bg-warning{% elif bulk_order.status == 'reviewed' %}bg-info{% elif bulk_order.status == 'accepted' %}bg-primary{% elif bulk_order.status == 'completed' %}bg-success{% elif bulk_order.status == 'rejected' %}bg-danger{% endif %}">
+                                {{ bulk_order.get_status_display }}
+                            </span>
+                        </p>
+                        
+                        {% if bulk_order.status == 'rejected' and bulk_order.rejection_reason %}
+                        <div class="alert alert-danger mt-3">
+                            <h6>Rejection Reason:</h6>
+                            <p class="mb-0">{{ bulk_order.rejection_reason }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'accounts:bulk_orders' %}" class="btn btn-secondary">Back to My Orders</a>
+                        {% if bulk_order.status == 'new' or bulk_order.status == 'reviewed' %}
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            Cancel Order
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if bulk_order.status == 'new' %}
+            <div class="card shadow-sm bg-light mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i> What's Next?</h5>
+                    <p class="mb-0">Your bulk order inquiry has been submitted and will be reviewed within 24 hours. Our team will contact you to discuss the details, pricing, and timeline. You can check the status of your inquiry on this page.</p>
+                </div>
+            </div>
+            {% elif bulk_order.status == 'reviewed' %}
+            <div class="card shadow-sm bg-light mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i> What's Next?</h5>
+                    <p class="mb-0">Your inquiry has been reviewed. Our team is preparing a quotation for you and will contact you shortly. If you have any questions, please contact your account manager.</p>
+                </div>
+            </div>
+            {% elif bulk_order.status == 'accepted' %}
+            <div class="card shadow-sm bg-light mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i> What's Next?</h5>
+                    <p class="mb-0">Your bulk order has been accepted. Our production team is working on your bulk_order. You will receive regular updates on the progress. If you have any questions, please contact your account manager.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Cancel Order Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModalLabel">Cancel Bulk Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to cancel this bulk order inquiry?</p>
+                    <p class="mb-0 text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form action="{% url 'bulk_orders:cancel' bulk_bulk_order.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Cancel Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

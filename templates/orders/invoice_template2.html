@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice #{{ order.order_number }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333333;
+            background-color: #ffffff;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 25px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #E6F0FA;
+            padding: 15px;
+            border-radius: 6px 6px 0 0;
+            border-bottom: 2px solid #4682B4;
+        }
+        .header img {
+            max-width: 140px;
+            height: auto;
+        }
+        .header .company-details {
+            text-align: right;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #4682B4;
+            font-weight: bold;
+        }
+        .header p {
+            margin: 4px 0;
+            font-size: 12px;
+            color: #333333;
+        }
+        .section {
+            margin: 15px 0;
+        }
+        .details {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            background-color: #ffffff;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+        .details div {
+            flex: 1;
+            min-width: 180px;
+            margin: 8px;
+        }
+        .details h3 {
+            margin-top: 0;
+            font-size: 15px;
+            color: #4682B4;
+            font-weight: bold;
+        }
+        .details p {
+            margin: 4px 0;
+            font-size: 12px;
+            color: #333333;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .items-table th,
+        .items-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .items-table th {
+            background-color: #E6F0FA;
+            color: #4682B4;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .items-table td {
+            font-size: 12px;
+            color: #333333;
+        }
+        .items-table .product {
+            display: flex;
+            align-items: center;
+        }
+        .items-table .product img {
+            width: 35px;
+            height: 35px;
+            object-fit: cover;
+            margin-right: 8px;
+            border-radius: 3px;
+            border: 1px solid #e0e0e0;
+        }
+        .items-table .total-row td {
+            font-weight: bold;
+            background-color: #F9FBFD;
+            border-top: 2px solid #4682B4;
+            color: #333333;
+        }
+        .totals {
+            margin-top: 15px;
+            text-align: right;
+        }
+        .totals p {
+            margin: 4px 0;
+            font-size: 12px;
+            color: #333333;
+        }
+        .totals .grand-total {
+            font-weight: bold;
+            font-size: 14px;
+            color: #4682B4;
+        }
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 10px;
+            color: #777777;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 12px;
+        }
+        .footer p {
+            margin: 3px 0;
+        }
+        .status {
+            color: #4682B4;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{ logo_url|default:'https://via.placeholder.com/140x40?text=Logo' }}" alt="Bhavi Fashion Logo" class="company-logo">
+            <div class="company-details">
+                <h1>INVOICE</h1>
+                <p>Invoice #: {{ order.order_number }}</p>
+                <p>Date: {{ order.created_at|date:"d M Y" }}</p>
+                <p>Status: <span class="status">{{ order.get_order_status_display }}</span></p>
+            </div>
+        </div>
+
+        <!-- Billing and Shipping Details -->
+        <div class="section details">
+            <div class="billing">
+                <h3>Billed To</h3>
+                <p>{{ order.billing_address.name }}</p>
+                <p>{{ order.billing_address.address_line1 }}</p>
+                {% if order.billing_address.address_line2 %}
+                <p>{{ order.billing_address.address_line2 }}</p>
+                {% endif %}
+                <p>{{ order.billing_address.city }}, {{ order.billing_address.state }} - {{ order.billing_address.pincode }}</p>
+                <p>Phone: {{ order.billing_address.phone }}</p>
+                <p>Email: {{ order.user.email }}</p>
+            </div>
+            <div class="shipping">
+                <h3>Shipped To</h3>
+                <p>{{ order.shipping_address.name }}</p>
+                <p>{{ order.shipping_address.address_line1 }}</p>
+                {% if order.shipping_address.address_line2 %}
+                <p>{{ order.shipping_address.address_line2 }}</p>
+                {% endif %}
+                <p>{{ order.shipping_address.city }}, {{ order.shipping_address.state }} - {{ order.shipping_address.pincode }}</p>
+                <p>Phone: {{ order.shipping_address.phone }}</p>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="section">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td class="product">
+                            <img src="{{ item.product.image_url|default:'https://via.placeholder.com/35?text=Item' }}" alt="{{ item.product.name }}">
+                            {{ item.product.name }}
+                            {% if item.variant %}
+                            <br><small style="color: #777777;">(Variant: {{ item.variant.name }})</small>
+                            {% endif %}
+                        </td>
+                        <td>₹{{ item.price|floatformat:2 }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₹{{ item.total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td colspan="3">Subtotal</td>
+                        <td>₹{{ order.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    {% if order.discount %}
+                    <tr>
+                        <td colspan="3">Discount</td>
+                        <td>-₹{{ order.discount|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td colspan="3">Tax</td>
+                        <td>₹{{ order.tax|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">Shipping</td>
+                        <td>₹{{ order.shipping_cost|floatformat:2 }}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="3">Grand Total</td>
+                        <td>₹{{ order.total_amount|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="section">
+            <div class="totals">
+                <p>Payment Method: {{ order.payment_method|title }}</p>
+                <p>Payment Status: {{ order.payment_status|title }}</p>
+                {% if order.customer_notes %}
+                <p>Customer Notes: {{ order.customer_notes }}</p>
+                {% endif %}
+                <p class="grand-total">Total Paid: ₹{{ order.total_amount|floatformat:2 }}</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Bhavi Fashion</strong></p>
+            <p>123 Fashion Street, Mumbai, Maharashtra, India - 400001</p>
+            <p>Email: support@bhavifashion.com | Phone: +91 123 456 7890</p>
+            <p>Thank you for shopping with us!</p>
+            <p>Return Policy: Returns accepted within 30 days with original receipt.</p>
+            <p>© {{ 'now'|date:"Y" }} Bhavi Fashion. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,841 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Custom Design - Bhavi India Fashion{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Step content */
+    .step-content {
+        display: none;
+        padding: 30px 0;
+    }
+    .step-content.active {
+        display: block;
+    }
+    .form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .step-navigation {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+    .step-indicator-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+    .step-indicator {
+        display: flex;
+        align-items: center;
+    }
+    .step-dot {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background-color: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #fff;
+        margin: 0 5px;
+        transition: background-color 0.3s;
+    }
+    .step-connector {
+        height: 2px;
+        background-color: #e0e0e0;
+        width: 50px;
+    }
+    .step-dot.active {
+        background-color: #007bff;
+    }
+    .step-dot.completed {
+        background-color: #28a745;
+    }
+    .step-connector.active {
+        background-color: #007bff;
+    }
+    /* Color Palette Styles */
+    .form-control-color {
+        width: 60px;
+         height: 60px;
+         border: 2px solid #ddd;
+         border-radius: 8px;
+         cursor: pointer;
+         padding: 2px;
+     }
+ 
+     .selected-color-display {
+         display: flex;
+         align-items: center;
+         gap: 10px;
+     }
+ 
+     .color-box {
+         display: inline-block;
+         width: 40px;
+         height: 40px;
+         border-radius: 8px;
+         border: 1px solid #ccc;
+         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+     }
+ 
+     .color-value {
+         font-family: monospace;
+         font-size: 16px;
+         font-weight: 500;
+     }
+     .color-sample {
+         display: inline-block;
+         width: 24px;
+         height: 24px;
+         border-radius: 4px;
+         border: 1px solid #ddd;
+         vertical-align: middle;
+         margin-left: 8px;
+     }
+     .form-control-color {
+         width: 50px;
+         height: 50px;
+         padding: 2px;
+     }
+
+    .measurement-guide-card {
+        border: 1px solid #eee;
+        padding: 10px;
+        border-radius: 8px;
+        position: sticky;
+        top: 20px;
+        text-align: center;
+    }
+    .measurement-guide-img {
+        max-width: 250px;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+    }
+    .measurement-fields {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    @media (max-width: 768px) {
+        .measurement-guide-img {
+            max-width: 200px;
+        }
+        .measurement-guide-card {
+            position: static;
+            margin-bottom: 20px;
+        }
+    }
+    .measurement-fields h5 {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    .table thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+    .table-bordered {
+        border-color: #dee2e6;
+    }
+    .design-option {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .design-option:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .design-option.selected {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+    .design-option img {
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+    .img-preview {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 10px;
+        border-radius: 5px;
+    }
+    .form-control.is-valid {
+        border-color: #28a745;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+    <h1 class="text-center mb-5">Custom Design Service</h1>
+
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="text-center mb-4">Create Your Dream Outfit</h3>
+                    <p class="text-center">Our expert tailors will bring your vision to life with precision and care</p>
+
+                    {% if not user.is_authenticated %}
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-circle me-2"></i> Please <a href="#" data-bs-toggle="modal"
+                            data-bs-target="#loginModal">login</a> or <a href="#" data-bs-toggle="modal"
+                            data-bs-target="#registerModal">register</a> to submit your custom design request.
+                    </div>
+                    {% endif %}
+
+                    <div class="step-indicator-container">
+                        <div class="step-indicator">
+                            <div class="step-dot active" id="step-dot-1">1</div>
+                            <div class="step-connector" id="connector-1-2"></div>
+                            <div class="step-dot" id="step-dot-2">2</div>
+                            <div class="step-connector" id="connector-2-3"></div>
+                            <div class="step-dot" id="step-dot-3">3</div>
+                            <div class="step-connector" id="connector-3-4"></div>
+                            <div class="step-dot" id="step-dot-4">4</div>
+                        </div>
+                    </div>
+
+                    <form id="customDesignForm" method="post" action="{% url 'custom_designs:submit' %}"
+                        enctype="multipart/form-data" class="form-container">
+                        {% csrf_token %}
+
+                        <!-- Step 1: Personal Information -->
+                        <div class="step-content active" id="step-1">
+                            <h4 class="mb-4">Personal Information</h4>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="contact" class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" id="contact" name="contact" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Delivery Address *</label>
+                                <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Design Preferences -->
+                        <div class="step-content" id="step-2">
+                            <h4 class="mb-4">Design Preferences</h4>
+                            <div class="mb-4">
+                                <label class="form-label">Select Design Type *</label>
+                                <div class="row">
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <div class="design-option" data-design-type="kurti">
+                                            <img src="{% static 'images/designs/kurti.jpg' %}" alt="Kurti" class="img-fluid">
+                                            <h6 class="text-center">Kurti</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <div class="design-option" data-design-type="blouse">
+                                            <img src="{% static 'images/designs/blouse.jpg' %}" alt="Blouse" class="img-fluid">
+                                            <h6 class="text-center">Blouse</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <div class="design-option" data-design-type="choli">
+                                            <img src="{% static 'images/designs/choli.jpg' %}" alt="Choli" class="img-fluid">
+                                            <h6 class="text-center">Choli</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <div class="design-option" data-design-type="pant">
+                                            <img src="{% static 'images/designs/pant.jpg' %}" alt="Pant" class="img-fluid">
+                                            <h6 class="text-center">Pant</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <div class="design-option" data-design-type="other">
+                                            <img src="{% static 'images/designs/other.jpg' %}" alt="Other" class="img-fluid">
+                                            <h6 class="text-center">Other</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="design_type" name="design_type" required>
+                                <div id="otherDesignTypeDiv" class="mt-3" style="display: none;">
+                                    <label for="other_design_type" class="form-label">Specify Design Type *</label>
+                                    <input type="text" class="form-control" id="other_design_type" name="other_design_type">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="fabric_type" class="form-label">Fabric Preference *</label>
+                                <select class="form-select" id="fabric_type" name="fabric_type" required>
+                                    <option value="">Select Fabric</option>
+                                    <option value="Cotton">Cotton</option>
+                                    <option value="Silk">Silk</option>
+                                    <option value="Chiffon">Chiffon</option>
+                                    <option value="Georgette">Georgette</option>
+                                    <option value="Crepe">Crepe</option>
+                                    <option value="Linen">Linen</option>
+                                    <option value="Velvet">Velvet</option>
+                                </select>
+                            </div>
+                            <div class="mb-4 color-selection">
+                                <label class="form-label">Choose Your Color *</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <input type="color" id="colorPicker" class="form-control form-control-color" value="#ff0000" required>
+                                    <div class="selected-color">
+                                        <span id="colorName">Red</span>
+                                        <span id="colorSample" style="background-color: #ff0000;"></span>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="selected_color" id="selectedColor" required
+                                       value='{"hex":"#ff0000","name":"Red"}'>
+                                <div class="invalid-feedback">Please select a color</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="embroidery" name="embroidery" value="true">
+                                    <label class="form-check-label" for="embroidery">
+                                        Add embroidery work (additional charges apply)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="reference_image" class="form-label">Upload Reference Image</label>
+                                <input type="file" class="form-control" id="reference_image" name="reference_image" accept="image/*">
+                                <small class="text-muted">Upload any reference design or inspiration (optional)</small>
+                                <div id="imagePreview"></div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Measurements -->
+                        <div class="step-content" id="step-3">
+                            <h4 class="mb-4">Measurements</h4>
+                            <div class="measurement-section">
+                                <div class="row">
+                                    <div class="col-12 mb-4">
+                                        <label class="form-label">Measurement Mode</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="measurement_mode" 
+                                                   id="standardSize" value="static" checked>
+                                            <label class="form-check-label" for="standardSize">
+                                                Standard Size
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="measurement_mode" 
+                                                   id="customMeasurements" value="dynamic">
+                                            <label class="form-check-label" for="customMeasurements">
+                                                Custom Measurements
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="standardSizeSection">
+                                        <div class="card mb-4">
+                                            <div class="card-body">
+                                                <label class="form-label">Select Standard Size</label>
+                                                <select class="form-select mb-3" name="standard_size">
+                                                    <option value="XS">XS (Extra Small)</option>
+                                                    <option value="S">S (Small)</option>
+                                                    <option value="M">M (Medium)</option>
+                                                    <option value="L">L (Large)</option>
+                                                    <option value="XL">XL (Extra Large)</option>
+                                                </select>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Size</th>
+                                                                <th>To Fit Bust (in)</th>
+                                                                <th>Front Length (in)</th>
+                                                                <th>To Fit Waist (in)</th>
+                                                                <th>Outseam Length (in)</th>
+                                                                <th>Inseam Length (in)</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>XS</td>
+                                                                <td>32.0</td>
+                                                                <td>44.0</td>
+                                                                <td>28.0</td>
+                                                                <td>38.0</td>
+                                                                <td>26.5</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>S</td>
+                                                                <td>34.0</td>
+                                                                <td>44.0</td>
+                                                                <td>30.0</td>
+                                                                <td>38.0</td>
+                                                                <td>26.5</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>M</td>
+                                                                <td>36.0</td>
+                                                                <td>44.0</td>
+                                                                <td>32.0</td>
+                                                                <td>38.0</td>
+                                                                <td>26.5</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>L</td>
+                                                                <td>38.0</td>
+                                                                <td>44.0</td>
+                                                                <td>34.0</td>
+                                                                <td>38.0</td>
+                                                                <td>26.5</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>XL</td>
+                                                                <td>40.0</td>
+                                                                <td>44.0</td>
+                                                                <td>36.0</td>
+                                                                <td>38.0</td>
+                                                                <td>26.5</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 d-none" id="customMeasurementsSection">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="measurement-guide-card">
+                                                    <img id="measurementGuideImage" 
+                                                         src="{% static 'images/measurement-guides/kurti-guide.jpg' %}" 
+                                                         alt="Measurement Guide"
+                                                         class="img-fluid measurement-guide-img rounded">
+                                                    <div class="mt-3">
+                                                        <button type="button" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-ruler"></i> How to Measure
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="kurtiMeasurements" class="measurement-fields">
+                                                    <h5>Kurti Measurements (in inches)</h5>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Shoulder</label>
+                                                        <input type="number" step="0.1" class="form-control" name="kurti_shoulder">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Bust/Chest</label>
+                                                        <input type="number" step="0.1" class="form-control" name="kurti_chest">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Waist</label>
+                                                        <input type="number" step="0.1" class="form-control" name="kurti_waist">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Hips</label>
+                                                        <input type="number" step="0.1" class="form-control" name="kurti_hips">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Top Length</label>
+                                                        <input type="number" step="0.1" class="form-control" name="kurti_top_length">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Sleeve Length</label>
+                                                        <input type="number" step="0.1" class="form-control" name="kurti_sleeve_length">
+                                                    </div>
+                                                </div>
+                                                <div id="blouseMeasurements" class="measurement-fields d-none">
+                                                    <h5>Blouse Measurements (in inches)</h5>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Shoulder</label>
+                                                        <input type="number" step="0.1" class="form-control" name="blouse_shoulder">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Bust/Chest</label>
+                                                        <input type="number" step="0.1" class="form-control" name="blouse_chest">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Waist</label>
+                                                        <input type="number" step="0.1" class="form-control" name="blouse_waist">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Sleeve Length</label>
+                                                        <input type="number" step="0.1" class="form-control" name="blouse_sleeve_length">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Back Neck Depth</label>
+                                                        <input type="number" step="0.1" class="form-control" name="blouse_back_neck_depth">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Blouse Length</label>
+                                                        <input type="number" step="0.1" class="form-control" name="blouse_blouse_length">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Armhole</label>
+                                                        <input type="number" step="0.1" class="form-control" name="blouse_armhole">
+                                                    </div>
+                                                </div>
+                                                <div id="pantMeasurements" class="measurement-fields d-none">
+                                                    <h5>Pant Measurements (in inches)</h5>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Pant Length</label>
+                                                        <input type="number" step="0.1" class="form-control" name="pant_pant_length">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Rise</label>
+                                                        <input type="number" step="0.1" class="form-control" name="pant_rise">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Waist</label>
+                                                        <input type="number" step="0.1" class="form-control" name="pant_waist">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Thigh</label>
+                                                        <input type="number" step="0.1" class="form-control" name="pant_thigh">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Knee</label>
+                                                        <input type="number" step="0.1" class="form-control" name="pant_knee">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Ankle</label>
+                                                        <input type="number" step="0.1" class="form-control" name="pant_ankle">
+                                                    </div>
+                                                </div>
+                                                <div id="choliMeasurements" class="measurement-fields d-none">
+                                                    <h5>Choli Measurements (in inches)</h5>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Shoulder</label>
+                                                        <input type="number" step="0.1" class="form-control" name="choli_shoulder">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Bust/Chest</label>
+                                                        <input type="number" step="0.1" class="form-control" name="choli_chest">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Waist</label>
+                                                        <input type="number" step="0.1" class="form-control" name="choli_waist">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Hips</label>
+                                                        <input type="number" step="0.1" class="form-control" name="choli_hips">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Other</label>
+                                                        <input type="number" step="0.1" class="form-control" name="choli_other">
+                                                    </div>
+                                                </div>
+                                                <div id="otherMeasurements" class="measurement-fields d-none">
+                                                    <h5>Other Measurements (in inches)</h5>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Shoulder</label>
+                                                        <input type="number" step="0.1" class="form-control" name="other_shoulder">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Bust/Chest</label>
+                                                        <input type="number" step="0.1" class="form-control" name="other_chest">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Waist</label>
+                                                        <input type="number" step="0.1" class="form-control" name="other_waist">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Hips</label>
+                                                        <input type="number" step="0.1" class="form-control" name="other_hips">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Other</label>
+                                                        <input type="text" class="form-control" name="other_other" placeholder="Enter measurement (e.g., Length: 36)">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Order Details -->
+                        <div class="step-content" id="step-4">
+                            <h4 class="mb-4">Order Details</h4>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="quantity" class="form-label">Quantity *</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity" min="1" value="1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="timeline" class="form-label">Required By *</label>
+                                    <select class="form-select" id="timeline" name="timeline" required>
+                                        <option value="">Select Timeline</option>
+                                        <option value="Standard (3-4 weeks)">Standard (3-4 weeks)</option>
+                                        <option value="Expedited (2 weeks)">Expedited (2 weeks)</option>
+                                        <option value="Rush (7-10 days)">Rush (7-10 days) - Additional charge</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="budget" class="form-label">Budget Range (₹) *</label>
+                                <select class="form-select" id="budget" name="budget" required>
+                                    <option value="">Select Budget Range</option>
+                                    <option value="2000">Under ₹2,000</option>
+                                    <option value="3000">₹2,000 - ₹3,000</option>
+                                    <option value="5000">₹3,000 - ₹5,000</option>
+                                    <option value="10000">₹5,000 - ₹10,000</option>
+                                    <option value="15000">Above ₹10,000</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label for="notes" class="form-label">Additional Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3"
+                                    placeholder="Any specific design elements, preferences, or details you'd like us to know"></textarea>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="termsAgree" required>
+                                <label class="form-check-label" for="termsAgree">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a> *
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="step-navigation">
+                            <button type="button" id="prevBtn" class="btn btn-outline-primary" style="display: none;">Previous</button>
+                            <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+                            <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;" {% if not user.is_authenticated %}disabled{% endif %}>Submit Design Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Size Chart Modal -->
+<div class="modal fade" id="sizeChartModal" tabindex="-1" aria-labelledby="sizeChartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sizeChartModalLabel">Size Chart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="sizeChartContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.2/tinycolor.min.js"> {% endcomment %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const stepDots = Array.from({ length: totalSteps }, (_, i) => document.getElementById(`step-dot-${i + 1}`));
+    const stepConnectors = Array.from({ length: totalSteps - 1 }, (_, i) => document.getElementById(`connector-${i + 1}-${i + 2}`));
+
+    function updateStepIndicators(step) {
+        stepDots.forEach((dot, index) => {
+            const stepNum = index + 1;
+            dot.classList.remove('active', 'completed');
+            if (stepNum < step) {
+                dot.classList.add('completed');
+            } else if (stepNum === step) {
+                dot.classList.add('active');
+            }
+        });
+        stepConnectors.forEach((connector, index) => {
+            const connectorNum = index + 1;
+            connector.classList.remove('active');
+            if (connectorNum < step) {
+                connector.classList.add('active');
+            }
+        });
+    }
+
+    function goToStep(step) {
+        document.querySelectorAll('.step-content').forEach(stepContent => {
+            stepContent.classList.remove('active');
+        });
+        document.getElementById(`step-${step}`).classList.add('active');
+        prevBtn.style.display = step === 1 ? 'none' : 'block';
+        nextBtn.style.display = step === totalSteps ? 'none' : 'block';
+        submitBtn.style.display = step === totalSteps ? 'block' : 'none';
+        updateStepIndicators(step);
+        currentStep = step;
+    }
+
+    nextBtn.addEventListener('click', function () {
+        if (validateCurrentStep(currentStep)) {
+            if (currentStep < totalSteps) {
+                goToStep(currentStep + 1);
+            }
+        }
+    });
+
+    prevBtn.addEventListener('click', function () {
+        if (currentStep > 1) {
+            goToStep(currentStep - 1);
+        }
+    });
+
+    function validateCurrentStep(step) {
+        let isValid = true;
+        if (step === 1) {
+            const name = document.getElementById('name').value;
+            const contact = document.getElementById('contact').value;
+            const address = document.getElementById('address').value;
+            if (!name || !contact || !address) {
+                alert('Please fill all required fields in Personal Information');
+                isValid = false;
+            }
+        }
+        if (step === 2) {
+            const designType = document.getElementById('design_type').value;
+            const fabricType = document.getElementById('fabric_type').value;
+            const selectedColor = document.getElementById('selectedColor').value;
+            if (!designType) {
+                alert('Please select a design type');
+                isValid = false;
+            } else if (designType === 'other' && !document.getElementById('other_design_type').value) {
+                alert('Please specify your design type');
+                isValid = false;
+            }
+            if (!fabricType) {
+                alert('Please select a fabric type');
+                isValid = false;
+            }
+            if (!selectedColor) {
+                alert('Please select a color');
+                isValid = false;
+            }
+        }
+        if (step === 3) {
+            const measurementMode = document.querySelector('input[name="measurement_mode"]:checked').value;
+            if (measurementMode === 'static') {
+                const standardSize = document.querySelector('select[name="standard_size"]').value;
+                if (!standardSize) {
+                    alert('Please select a standard size');
+                    isValid = false;
+                }
+            } else {
+                const designType = document.getElementById('design_type').value;
+                const measurementFields = document.querySelectorAll(`#${designType}Measurements input[type="number"]`);
+                let hasMeasurement = false;
+                measurementFields.forEach(field => {
+                    if (field.value) hasMeasurement = true;
+                });
+                if (!hasMeasurement) {
+                    alert('Please provide at least one measurement');
+                    isValid = false;
+                }
+            }
+        }
+        if (step === 4) {
+            const quantity = document.getElementById('quantity').value;
+            const timeline = document.getElementById('timeline').value;
+            const budget = document.getElementById('budget').value;
+            if (!quantity || !timeline || !budget) {
+                alert('Please fill all required fields in Order Details');
+                isValid = false;
+            }
+            if (!document.getElementById('termsAgree').checked) {
+                alert('You must agree to the terms and conditions');
+                isValid = false;
+            }
+        }
+        return isValid;
+    }
+
+    // Design type selection
+    document.querySelectorAll('.design-option').forEach(option => {
+        option.addEventListener('click', function () {
+            document.querySelectorAll('.design-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.classList.add('selected');
+            const designType = this.getAttribute('data-design-type');
+            document.getElementById('design_type').value = designType;
+            document.getElementById('otherDesignTypeDiv').style.display = designType === 'other' ? 'block' : 'none';
+            updateMeasurementFields(designType);
+        });
+    });
+
+    // Color palette selection
+    const colorPicker = document.getElementById('colorPicker');
+        const colorInput = document.getElementById('selectedColor');
+        colorPicker.addEventListener('input', function (e) {
+            const hexColor = e.target.value;
+            const colorName = tinycolor(hexColor).toName() || 'Custom Color';
+            colorInput.value = JSON.stringify({ hex: hexColor, name: colorName });
+
+            document.getElementById('colorName').textContent = colorName;
+            document.getElementById('colorSample').style.backgroundColor = hexColor;
+        });
+
+    // Measurement mode selection
+    document.querySelectorAll('input[name="measurement_mode"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const standardSizeSection = document.getElementById('standardSizeSection');
+            const customMeasurementsSection = document.getElementById('customMeasurementsSection');
+            if (this.value === 'static') {
+                standardSizeSection.classList.remove('d-none');
+                customMeasurementsSection.classList.add('d-none');
+            } else {
+                standardSizeSection.classList.add('d-none');
+                customMeasurementsSection.classList.remove('d-none');
+                updateMeasurementFields();
+            }
+        });
+    });
+
+    function updateMeasurementFields(designType) {
+        designType = designType || document.getElementById('design_type').value;
+        document.querySelectorAll('.measurement-fields').forEach(field => {
+            field.classList.add('d-none');
+        });
+        if (designType) {
+            document.getElementById(designType + 'Measurements').classList.remove('d-none');
+            document.getElementById('measurementGuideImage').src = `/static/images/measurement-guides/${designType}-guide.jpg`;
+        }
+    }
+
+    document.getElementById('reference_image').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                document.getElementById('imagePreview').innerHTML = `<img src="${event.target.result}" class="img-preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
