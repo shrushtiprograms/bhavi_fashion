@@ -54,7 +54,7 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 Visit your site at: [http://localhost:8000/](http://localhost:8000/)
-
+```
 ---
 
 ## 🗄️ Database
@@ -67,6 +67,7 @@ To restore the sample database:
 
 ```bash
 mysql -u root -p bhavi_db < backup.sql
+```
 ---
 ## 📄 License
 
