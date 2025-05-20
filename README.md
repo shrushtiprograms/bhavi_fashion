@@ -74,13 +74,3 @@ mysql -u root -p bhavi_db < backup.sql
 This project is for educational and portfolio purposes only.
 
 ---
-
-## 📌 How to Add This README
-
-1. Go to your GitHub repository.  
-2. Click on **"Add file"** → **"Create new file"**.  
-3. Name the file: `README.md`  
-4. Paste all the code you just copied.  
-5. Scroll down and click **"Commit new file"**.
-
-Your README will now appear on the homepage of your GitHub repository.
